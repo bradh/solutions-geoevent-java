@@ -1,5 +1,6 @@
 package com.esri.geoevent.solutions.processor.hotspot;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -18,20 +19,28 @@ public class GeoEventInputSpout extends BaseRichSpout {
 	
 	private  LinkedBlockingQueue<GeoEvent>queue;
 	private SpoutOutputCollector collector;
+	private Map<String, String>fields = null;
 
 	GeoEventInputSpout()
 	{
 		
 	}
-
+	GeoEventInputSpout(Map<String, String> fields)
+	{
+		this.fields = fields;
+	}
 	@Override
 	public void nextTuple() {
 		GeoEvent event = queue.poll();
 		if(event != null)
 		{
 			GeoEventTupleProducer tupleProducer = new GeoEventTupleProducer(event);
-			Map<String, Object> map = tupleProducer.getEventMap();
-			this.collector.emit(new Values(map));
+			Map<String, Object> eventMap = tupleProducer.getEventMap();
+			String trackId = (String)eventMap.get("TrackId");
+			String json = (String)eventMap.get("Geometry");
+			String geoType = (String)eventMap.get("geoType");
+			
+			this.collector.emit(new Values(trackId, geoType, json));
 		}
 	}
 

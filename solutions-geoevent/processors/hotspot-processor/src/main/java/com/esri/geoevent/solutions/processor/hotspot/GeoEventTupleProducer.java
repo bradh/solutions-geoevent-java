@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.Geometry.Type;
 import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.MapGeometry;
@@ -43,7 +44,10 @@ public class GeoEventTupleProducer {
 		if(eventGeo != null)
 		{
 			json = GeometryEngine.geometryToJson(eventGeo.getSpatialReference(), eventGeo.getGeometry());
-			geoType = GetGeoTypeString(eventGeo);
+			
+			
+			Type t = eventGeo.getGeometry().getType();
+			geoType = GetGeoTypeString(t);
 		}
 		eventMap.put("Geometry", json);
 		eventMap.put("geoType", geoType);
@@ -52,9 +56,11 @@ public class GeoEventTupleProducer {
 		
 	}
 	
-	private String GetGeoTypeString(MapGeometry geo)
+	
+	
+	public String GetGeoTypeString(Geometry.Type t)
 	{
-		Type t = geo.getGeometry().getType();
+		//Type t = geo.getGeometry().getType();
 		String type = null;
 		if(t == Type.MultiPoint)
 		{
