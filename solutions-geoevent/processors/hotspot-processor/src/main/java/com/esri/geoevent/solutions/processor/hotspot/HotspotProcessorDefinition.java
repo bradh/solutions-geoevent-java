@@ -48,5 +48,34 @@ public class HotspotProcessorDefinition extends GeoEventProcessorDefinitionBase 
 		PropertyDefinition pdWkid = new PropertyDefinition("wkid", PropertyType.Integer, 0.0, lblWkid, descWkid, true, false);
 		propertyDefinitions.put(pdWkid.getPropertyName(), pdWkid);
 	}
-	
+	@Override
+	public String getName() {
+		return "HotspotProcessor";
+	}
+
+	@Override
+	public String getDomain() {
+		return "com.esri.geoevent.solutions.processor.hotspot";
+	}
+
+	@Override
+	public String getVersion() {
+		return "10.3.0";
+	}
+
+	@Override
+	public String getLabel() {
+		return "${com.esri.geoevent.solutions.processor.hotspot.hotspot-processor.PROCESSOR_LABEL}";
+	}
+
+	@Override
+	public String getDescription() {
+		return "${com.esri.geoevent.solutions.processor.hotspot.hotspot-processor.PROCESSOR_DESCRIPTION}";
+	}
+
+	@Override
+	public String getContactInfo() {
+		return "geoeventprocessor@esri.com";
+	}
+
 }
