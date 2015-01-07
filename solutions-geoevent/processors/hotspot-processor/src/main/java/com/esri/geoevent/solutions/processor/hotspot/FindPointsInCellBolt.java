@@ -33,7 +33,7 @@ public class FindPointsInCellBolt extends BaseRichBolt {
 		String procId = tuple.getStringByField("procId");
 		String trackId = tuple.getStringByField("trackId");
 		String json = tuple.getStringByField("point");
-		Integer numCells tuple.getIntegerByField("numCells");
+		Integer numCells = tuple.getIntegerByField("numCells");
 		MapGeometry mapGeo = null;
 		try {
 			mapGeo = GeometryEngine.jsonToGeometry(json);

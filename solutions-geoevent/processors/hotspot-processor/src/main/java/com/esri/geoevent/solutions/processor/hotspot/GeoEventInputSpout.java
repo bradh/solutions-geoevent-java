@@ -1,10 +1,15 @@
 package com.esri.geoevent.solutions.processor.hotspot;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.esri.ges.core.component.ComponentDefinition;
 import com.esri.ges.core.geoevent.GeoEvent;
+import com.esri.ges.core.geoevent.GeoEventDefinition;
+import com.esri.ges.processor.GeoEventProcessorDefinition;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -20,7 +25,8 @@ public class GeoEventInputSpout extends BaseRichSpout {
 	private  LinkedBlockingQueue<GeoEvent>queue;
 	private SpoutOutputCollector collector;
 	private Map<String, String>fields = null;
-
+	private GeoEventProcessorDefinition definition;
+	
 	GeoEventInputSpout()
 	{
 		
@@ -34,13 +40,15 @@ public class GeoEventInputSpout extends BaseRichSpout {
 		GeoEvent event = queue.poll();
 		if(event != null)
 		{
-			GeoEventTupleProducer tupleProducer = new GeoEventTupleProducer(event);
+			GeoEventTupleProducer tupleProducer = new GeoEventTupleProducer(event, definition);
 			Map<String, Object> eventMap = tupleProducer.getEventMap();
 			String trackId = (String)eventMap.get("TrackId");
 			String json = (String)eventMap.get("Geometry");
 			String geoType = (String)eventMap.get("geoType");
+			String owner = (String)eventMap.get("owner");
+			HashMap<String, Object> valueMap = (HashMap<String, Object>)eventMap.get("ValueMap");
 			
-			this.collector.emit(new Values(trackId, geoType, json));
+			this.collector.emit(new Values(trackId, geoType, json, owner, valueMap));
 		}
 	}
 
@@ -53,13 +61,22 @@ public class GeoEventInputSpout extends BaseRichSpout {
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("event"));
+		Fields flds = new Fields();
+		
+		
+		declarer.declare(new Fields("trackId", "geoType", "geometry", "owner", "valuemap"));
+		
 		
 	}
 	
 	public void pushEvent(GeoEvent event)
 	{
 		queue.add(event);
+	}
+	
+	public void setGeoEventDefinition(GeoEventProcessorDefinition definition)
+	{
+		this.definition = definition;
 	}
 
 }

@@ -45,7 +45,7 @@ public class CollectPointsBolt extends BaseRichBolt {
 		String json = tuple.getStringByField("geometry");
 		String geoType = tuple.getStringByField("geoType");
 		String trackId = tuple.getStringByField("TrackId");
-		
+		String owner = tuple.getStringByField("owner");
 
 		if (geoType.equals("point"))
 		{
@@ -69,6 +69,7 @@ public class CollectPointsBolt extends BaseRichBolt {
 							Integer size = points.size();
 							collector.emit("processStream",new Values(procId,id,currentPt,size,points));
 							collector.emit("pointsStream",new Values(procId,points));
+							collector.emit("ownerStream",new Values(procId,owner));
 						}
 					}
 				}
@@ -84,6 +85,7 @@ public class CollectPointsBolt extends BaseRichBolt {
 						Integer size = points.size();
 						collector.emit("processStream",new Values(procId,id,currentPt,size,points));
 						collector.emit("pointsStream",new Values(procId,points));
+						collector.emit("ownerStream",new Values(procId, owner));
 					}
 					
 				}

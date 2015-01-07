@@ -2,7 +2,6 @@ package com.esri.geoevent.solutions.processor.hotspot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -42,7 +41,7 @@ public class FindCellSizeBolt extends BaseRichBolt {
 			Double sum = 0.0;
 			
 			Integer count = 0;
-			Integer medIndex = Math.floorDiv(size, 2);
+			Integer medIndex = size/2;
 			Double mnn = proc.get(medIndex);
 			for(Double nearest: proc)
 			{

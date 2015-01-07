@@ -9,11 +9,13 @@ import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.Geometry.Type;
 import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.MapGeometry;
+import com.esri.ges.core.component.ComponentDefinition;
 import com.esri.ges.core.geoevent.FieldCardinality;
 import com.esri.ges.core.geoevent.FieldType;
 import com.esri.ges.core.geoevent.GeoEvent;
 import com.esri.ges.core.geoevent.GeoEventDefinition;
 import com.esri.ges.core.geoevent.FieldDefinition;
+import com.esri.ges.processor.GeoEventProcessorDefinition;
 
 public class GeoEventTupleProducer {
 	private GeoEvent event;
@@ -23,13 +25,14 @@ public class GeoEventTupleProducer {
 	private MapGeometry eventGeo;
 	private String trackId;
 	
-	GeoEventTupleProducer(GeoEvent evt){
+	GeoEventTupleProducer(GeoEvent evt, GeoEventProcessorDefinition definition){
 		event=evt;
 		eventDef=event.getGeoEventDefinition();
 		fieldDefs= eventDef.getFieldDefinitions();
 		String guid = eventDef.getGuid();
 		String defName = eventDef.getName();
-		String owner = eventDef.getOwner();
+		String owner = definition.getUri().toString();
+		//edOut.setOwner(definition.getUri().toString());
 		Map<String, Object> valueMap = new HashMap<String, Object>();
 		eventGeo = event.getGeometry();
 		trackId = event.getTrackId();

@@ -14,6 +14,8 @@ public class HotspotProcessorDefinition extends GeoEventProcessorDefinitionBase 
 	private String descIntervalIsTime = "${com.esri.geoevent.solutions.processor.hotspot.hotspot-processor.DESC_INTERVAL_IS_TIME}";
 	private String lblMinSize = "${com.esri.geoevent.solutions.processor.hotspot.hotspot-processor.LBL_MIN_SIZE}";
 	private String descMinSize = "${com.esri.geoevent.solutions.processor.hotspot.hotspot-processor.DESC_MIN_SIZE}";
+	private String lblOutDefNamePrefix = "${com.esri.geoevent.solutions.processor.hotspot.hotspot-processor.LBL_OUT_DEF_NAME}";
+	private String descOutDefNamePrefix = "${com.esri.geoevent.solutions.processor.hotspot.hotspot-processor.DESC_OUT_DEF_NAME}";
 	private String lblXMin= "${com.esri.geoevent.solutions.processor.hotspot.hotspot-processor.LBL_XMIN}";
 	private String descXMin= "${com.esri.geoevent.solutions.processor.hotspot.hotspot-processor.DESC_XMIN}";
 	private String lblYMin= "${com.esri.geoevent.solutions.processor.hotspot.hotspot-processor.LBL_YMIN}";
@@ -33,6 +35,8 @@ public class HotspotProcessorDefinition extends GeoEventProcessorDefinitionBase 
 		propertyDefinitions.put(pdIntervalTime.getPropertyName(), pdIntervalTime);
 		PropertyDefinition pdMinSize = new PropertyDefinition("minsize", PropertyType.Integer, 1000, lblMinSize, descMinSize, true, false);
 		propertyDefinitions.put(pdMinSize.getPropertyName(), pdMinSize);
+		PropertyDefinition pdOutDefNamePrefix = new PropertyDefinition("outdefnameprefix", PropertyType.String, "fishnet", lblOutDefNamePrefix, descOutDefNamePrefix, true, false);
+		propertyDefinitions.put(pdOutDefNamePrefix.getPropertyName(), pdOutDefNamePrefix);
 		PropertyDefinition pdXMin = new PropertyDefinition("xmin", PropertyType.Double, 0.0, lblXMin, descXMin, true, false);
 		propertyDefinitions.put(pdXMin.getPropertyName(), pdXMin);
 		PropertyDefinition pdYMin = new PropertyDefinition("ymin", PropertyType.Double, 0.0, lblYMin, descYMin, true, false);

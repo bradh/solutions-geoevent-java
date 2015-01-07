@@ -31,11 +31,11 @@ public class ExtractGeometryBolt extends BaseRichBolt {
 	@Override
 	public void execute(Tuple tuple) {
 		Map<String, Object> eventMap = (Map<String, Object>)tuple.getValueByField("event");
-		String trackId = (String)eventMap.get("TrackId");
-		String json = (String)eventMap.get("Geometry");
-		String geoType = (String)eventMap.get("geoType");
-		
-		this.collector.emit(new Values(trackId, json, geoType));
+		String trackId = tuple.getStringByField("TrackId");
+		String json = tuple.getStringByField("Geometry");
+		String geoType = tuple.getStringByField("geoType");
+		String owner = tuple.getStringByField("owner");
+		this.collector.emit(new Values(trackId, json, geoType, owner));
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class ExtractGeometryBolt extends BaseRichBolt {
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("TrackId","geometry","geoType"));
+		declarer.declare(new Fields("TrackId","geometry","geoType", "owner"));
 
 	}
 
