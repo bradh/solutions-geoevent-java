@@ -1,20 +1,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.esri.geoevent.solutions.processor.hotspot</groupId>
-  <artifactId>hotspot-processor</artifactId>
-  <packaging>bundle</packaging>
-  <version>10.3.0</version>
-  <name>hotspot-processor</name>
-  <url>http://maven.apache.org</url>
-  <properties>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.esri.geoevent.solutions.processor.hotspot</groupId>
+	<artifactId>hotspot-processor</artifactId>
+	<packaging>bundle</packaging>
+	<version>10.3.0</version>
+	<name>hotspot-processor</name>
+	<url>http://maven.apache.org</url>
+	<properties>
 		<contact.address>geoevent@esri.com</contact.address>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.bundle.plugin.version>2.3.6</maven.bundle.plugin.version>
 		<junit.version>4.8.1</junit.version>
 		<jackson.version>1.9.5</jackson.version>
 	</properties>
-  <repositories>
+	<repositories>
 		<repository>
 			<id>ages-sdk-repo</id>
 			<name>GeoEvent Processor SDK repository</name>
@@ -26,9 +26,13 @@
 			<layout>default</layout>
 			<url>file:///Program Files/ArcGIS/Server/GeoEvent/System</url>
 		</repository>
+		<repository>
+  			<id>clojars.org</id>
+  			<url>http://clojars.org/repo</url>
+		</repository>
 	</repositories>
 	<dependencyManagement>
-	<dependencies>
+		<dependencies>
 			<dependency>
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging</artifactId>
@@ -42,10 +46,12 @@
 			<artifactId>ges-lib</artifactId>
 			<version>10.3.0</version>
 		</dependency>
+		<!-- <dependency> <groupId>org.apache.storm</groupId> <artifactId>storm-core</artifactId> 
+			<version>0.9.1-incubating</version> </dependency> -->
 		<dependency>
-			<groupId>org.apache.storm</groupId>
-			<artifactId>storm-core</artifactId>
-			<version>0.9.1-incubating</version>
+			<groupId>com.hmsonline.storm</groupId>
+			<artifactId>storm-osgi</artifactId>
+			<version>0.9.0-alpha1</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -69,21 +75,17 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-   			<groupId>com.esri.geometry</groupId>
-   			<artifactId>geometry-api</artifactId>
-   			<version>10.3.0</version>
+			<groupId>com.esri.geometry</groupId>
+			<artifactId>geometry-api</artifactId>
+			<version>10.3.0</version>
 		</dependency>
 		<dependency>
-   			<groupId>com.esotericsoftware</groupId>
-   			<artifactId>kryo</artifactId>
-   			<version>3.0.0</version>
+			<groupId>com.esotericsoftware</groupId>
+			<artifactId>kryo</artifactId>
+			<version>3.0.0</version>
 		</dependency>
-		<!--  <dependency>
-			<groupId>com.esri.arcgis.runtime</groupId>
-			<artifactId>runtime</artifactId>
-			<version>10.1.1</version>
-			<scope>provided</scope>
-		</dependency>-->
+		<!-- <dependency> <groupId>com.esri.arcgis.runtime</groupId> <artifactId>runtime</artifactId> 
+			<version>10.1.1</version> <scope>provided</scope> </dependency> -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -98,8 +100,8 @@
 		</dependency>
 
 	</dependencies>
-    <build>
-    	<pluginManagement>
+	<build>
+		<pluginManagement>
 			<plugins>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -109,7 +111,8 @@
 						<target>1.6</target>
 					</configuration>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -144,15 +147,15 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <version>2.4.0</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.4.0</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-ContactAddress>geoeventprocessor@esri.com</Bundle-ContactAddress>
 						<Bundle-Version>${project.version}</Bundle-Version>
 						<AGES-Domain>com.esri.geoevent.solutions.processor</AGES-Domain>
@@ -160,9 +163,9 @@
 						<Private-Package>
 							com.esri.geoevent.solutions.processor.hotspot
 						</Private-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
