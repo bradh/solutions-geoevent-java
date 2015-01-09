@@ -46,8 +46,6 @@
 			<artifactId>ges-lib</artifactId>
 			<version>10.3.0</version>
 		</dependency>
-		<!-- <dependency> <groupId>org.apache.storm</groupId> <artifactId>storm-core</artifactId> 
-			<version>0.9.1-incubating</version> </dependency> -->
 		<dependency>
 			<groupId>com.hmsonline.storm</groupId>
 			<artifactId>storm-osgi</artifactId>
