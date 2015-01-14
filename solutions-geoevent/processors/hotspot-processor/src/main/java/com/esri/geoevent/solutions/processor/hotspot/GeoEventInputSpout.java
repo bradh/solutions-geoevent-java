@@ -6,10 +6,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.esri.ges.core.component.ComponentDefinition;
-import com.esri.ges.core.geoevent.GeoEvent;
-import com.esri.ges.core.geoevent.GeoEventDefinition;
-import com.esri.ges.processor.GeoEventProcessorDefinition;
+//import com.esri.ges.core.component.ComponentDefinition;
+//import com.esri.ges.core.geoevent.GeoEvent;
+//import com.esri.ges.core.geoevent.GeoEventDefinition;
+//import com.esri.ges.processor.GeoEventProcessorDefinition;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -22,10 +22,10 @@ import backtype.storm.utils.Utils;
 
 public class GeoEventInputSpout extends BaseRichSpout {
 	
-	private  LinkedBlockingQueue<GeoEvent>queue;
+	private  LinkedBlockingQueue<String>queue;
 	private SpoutOutputCollector collector;
 	private Map<String, String>fields = null;
-	private GeoEventProcessorDefinition definition;
+	//private GeoEventProcessorDefinition definition;
 	
 	GeoEventInputSpout()
 	{
@@ -37,10 +37,10 @@ public class GeoEventInputSpout extends BaseRichSpout {
 	}
 	@Override
 	public void nextTuple() {
-		GeoEvent event = queue.poll();
+		String event = queue.poll();
 		if(event != null)
 		{
-			GeoEventTupleProducer tupleProducer = new GeoEventTupleProducer(event, definition);
+			GeoEventTupleProducer tupleProducer = new GeoEventTupleProducer(event);
 			Map<String, Object> eventMap = tupleProducer.getEventMap();
 			String trackId = (String)eventMap.get("TrackId");
 			String json = (String)eventMap.get("Geometry");
@@ -55,7 +55,7 @@ public class GeoEventInputSpout extends BaseRichSpout {
 	@Override
 	public void open(Map config, TopologyContext context, SpoutOutputCollector collector) {
 
-		queue = new LinkedBlockingQueue<GeoEvent>();
+		queue = new LinkedBlockingQueue<String>();
 		this.collector = collector;	
 	}
 
@@ -69,14 +69,14 @@ public class GeoEventInputSpout extends BaseRichSpout {
 		
 	}
 	
-	public void pushEvent(GeoEvent event)
+	public void pushEvent(String event)
 	{
 		queue.add(event);
 	}
 	
-	public void setGeoEventDefinition(GeoEventProcessorDefinition definition)
-	{
-		this.definition = definition;
-	}
+	//public void setGeoEventDefinition(GeoEventProcessorDefinition definition)
+	//{
+		//this.definition = definition;
+	//}
 
 }
