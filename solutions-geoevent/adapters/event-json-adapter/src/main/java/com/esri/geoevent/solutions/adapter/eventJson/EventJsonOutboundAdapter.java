@@ -82,15 +82,31 @@ public class EventJsonOutboundAdapter extends OutboundAdapterBase {
 
 		List<FieldDefinition> fds = event.getGeoEventDefinition()
 				.getFieldDefinitions();
-		String eventString = addStringQuotes("event") + ": {";
+		Boolean first = true;
+		String eventString = "{";
+		eventString += addStringQuotes("event") + ": {";
+		eventString += addStringQuotes("defname") + ":";
+		eventString += addStringQuotes(event.getGeoEventDefinition().getName()) + ",";
+		eventString += addStringQuotes("defguid") + ":";
+		eventString += addStringQuotes(event.getGeoEventDefinition().getGuid()) + ",";
+		eventString += addStringQuotes("owner") + ":";
+		eventString += addStringQuotes(event.getGeoEventDefinition().getOwner()) + ",";
+		eventString += addStringQuotes("uri") + ":";
+		eventString += addStringQuotes(definition.getUri().toString()) + ",";
+		eventString += addStringQuotes("attributes") + ": {";
 		for (FieldDefinition fd : fds) {
 			try {
-				GenerateFieldString(fd, event);
+				if(!first)
+					eventString += ", ";
+				else
+					first=false;
+				String fs = generateFieldString(fd, event);
+				eventString += fs;
 			} catch (Exception e) {
 				LOG.error(e.getMessage());
 			}
 		}
-		eventString += "}";
+		eventString += "}}}";
 		return eventString;
 	}
 
@@ -98,10 +114,10 @@ public class EventJsonOutboundAdapter extends OutboundAdapterBase {
 		Boolean first = true;
 		String tagsString = addStringQuotes("tags") + ":[";
 		for (String tag : tags) {
-			if (!first) {
+			if (!first) 
 				tagsString += ",";
+			else
 				first = false;
-			}
 			tagsString += addStringQuotes(tag);
 		}
 		tagsString += "]";
@@ -113,7 +129,7 @@ public class EventJsonOutboundAdapter extends OutboundAdapterBase {
 		return quotes + s + quotes;
 	}
 	
-	private String GenerateFieldString(FieldDefinition fd, FieldGroup event) throws Exception
+	private String generateFieldString(FieldDefinition fd, FieldGroup event) throws Exception
 	{
 		FieldType type = fd.getType();
 		String fieldString = "";
@@ -124,7 +140,7 @@ public class EventJsonOutboundAdapter extends OutboundAdapterBase {
 				.GetFieldTypeString(type)) + ",";
 		List<String> tags = fd.getTags();
 		if (!tags.isEmpty()) {
-			generateTagsString(tags);
+			fieldString += generateTagsString(tags) + ",";
 		}
 		fieldString += addStringQuotes("value") + ":";
 
@@ -144,11 +160,16 @@ public class EventJsonOutboundAdapter extends OutboundAdapterBase {
 				Geometry geo = mapGeo.getGeometry();
 				SpatialReference sr = mapGeo.getSpatialReference();
 				v = GeometryEngine.geometryToJson(sr, geo);
-			} else if (t == FieldType.Group) {
+			} 
+			else if (t==FieldType.Date)
+			{
+				v = addStringQuotes(value.toString());
+			}
+			else if (t == FieldType.Group) {
 				List<FieldDefinition> children = fd.getChildren();
 				FieldGroup fg = (FieldGroup) value;
 				for (FieldDefinition child : children) {
-					GenerateFieldString(child, fg);
+					v = generateFieldString(child, fg);
 				}
 			} else {
 				v = value.toString();
