@@ -1,0 +1,4 @@
+<adapter name="jsonEventOut" label="${com.esri.geoevent.solutions.adapter.eventJson.event-json-adapter.OUTBOUND_ADAPTER_LABEL}" domain="com.esri.geoevent.solutions.adapter.eventJson.outbound" type="outbound">
+	<description>${com.esri.geoevent.solutions.adapter.eventJson.event-json-adapter.OUTBOUND_ADAPTER_DESCRIPTION}</description>
+	<propertyDefinitions/>
+</adapter>

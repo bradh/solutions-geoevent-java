@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.esri.geoevent.solutions.processor.hotspot</groupId>
 	<artifactId>hotspot-processor</artifactId>
-	<packaging>bundle</packaging>
+	<packaging>jar</packaging>
 	<version>10.3.0</version>
 	<name>hotspot-processor</name>
 	<url>http://maven.apache.org</url>
@@ -14,23 +14,7 @@
 		<junit.version>4.8.1</junit.version>
 		<jackson.version>1.9.5</jackson.version>
 	</properties>
-	<repositories>
-		<repository>
-			<id>ages-sdk-repo</id>
-			<name>GeoEvent Processor SDK repository</name>
-			<url>file:///Program Files/ArcGIS/Server/GeoEvent/sdk/repository</url>
-		</repository>
-		<repository>
-			<id>GEP</id>
-			<name>GeoEvent Processor embedded repository</name>
-			<layout>default</layout>
-			<url>file:///Program Files/ArcGIS/Server/GeoEvent/System</url>
-		</repository>
-		<repository>
-  			<id>clojars.org</id>
-  			<url>http://clojars.org/repo</url>
-		</repository>
-	</repositories>
+	
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -41,15 +25,15 @@
 		</dependencies>
 	</dependencyManagement>
 	<dependencies>
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.esri.ges.sdk</groupId>
 			<artifactId>ges-lib</artifactId>
 			<version>10.3.0</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
-			<groupId>com.hmsonline.storm</groupId>
-			<artifactId>storm-osgi</artifactId>
-			<version>0.9.0-alpha1</version>
+			<groupId>org.apache.storm</groupId>
+			<artifactId>storm-core</artifactId>
+			<version>0.9.3</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -74,8 +58,8 @@
 		</dependency>
 		<dependency>
 			<groupId>com.esri.geometry</groupId>
-			<artifactId>geometry-api</artifactId>
-			<version>10.3.0</version>
+			<artifactId>esri-geometry-api</artifactId>
+			<version>1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.esotericsoftware</groupId>

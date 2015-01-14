@@ -12,7 +12,7 @@ import org.codehaus.jackson.JsonParseException;
 
 import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.MapGeometry;
-import com.esri.ges.core.ConfigurationException;
+/*import com.esri.ges.core.ConfigurationException;
 import com.esri.ges.core.geoevent.DefaultFieldDefinition;
 import com.esri.ges.core.geoevent.DefaultGeoEventDefinition;
 import com.esri.ges.core.geoevent.FieldDefinition;
@@ -24,7 +24,7 @@ import com.esri.ges.manager.geoeventdefinition.GeoEventDefinitionManager;
 import com.esri.ges.manager.geoeventdefinition.GeoEventDefinitionManagerException;
 import com.esri.ges.messaging.GeoEventCreator;
 import com.esri.ges.messaging.Messaging;
-import com.esri.ges.messaging.MessagingException;
+import com.esri.ges.messaging.MessagingException;*/
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -35,8 +35,8 @@ import backtype.storm.tuple.Tuple;
 public class GenerateHotspotEventBolt extends BaseRichBolt {
 	private static final Log LOG = LogFactory
 			.getLog(GenerateHotspotEventBolt.class);
-	public GeoEventDefinitionManager manager;
-	public Messaging messaging;
+	//public GeoEventDefinitionManager manager;
+	//public Messaging messaging;
 	private String gedNamePrefix;
 	private HotspotProcessor processor;
 	GenerateHotspotEventBolt(String gedNamePrefix){
@@ -49,10 +49,10 @@ public class GenerateHotspotEventBolt extends BaseRichBolt {
 		String owner = tuple.getStringByField("owner");
 		Long count = tuple.getLongByField("count");
 		String cellGeo = tuple.getStringByField("cellGeometry");
-		try {
-			GeoEventDefinition ged = FindGeoEventDefinition(owner, procId);
-			GeoEvent event = createEvent(ged, procId, cellId, count, cellGeo);
-			processor.queue.add(event);
+		/*try {
+			//GeoEventDefinition ged = FindGeoEventDefinition(owner, procId);
+			//GeoEvent event = createEvent(ged, procId, cellId, count, cellGeo);
+			//processor.queue.add(event);
 		} catch (GeoEventDefinitionManagerException e) {
 			LOG.error(e.getMessage());
 		} catch (JsonParseException e) {
@@ -63,7 +63,7 @@ public class GenerateHotspotEventBolt extends BaseRichBolt {
 			LOG.error(e.getMessage());
 		} catch (FieldException e) {
 			LOG.error(e.getMessage());
-		}
+		}*/
 
 	}
 

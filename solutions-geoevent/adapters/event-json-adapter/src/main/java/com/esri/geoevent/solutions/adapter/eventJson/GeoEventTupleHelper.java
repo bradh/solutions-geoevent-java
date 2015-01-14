@@ -1,4 +1,4 @@
-package com.esri.geoevent.solutions.processor.hotspot;
+package com.esri.geoevent.solutions.adapter.eventJson;
 
 
 import java.io.IOException;
