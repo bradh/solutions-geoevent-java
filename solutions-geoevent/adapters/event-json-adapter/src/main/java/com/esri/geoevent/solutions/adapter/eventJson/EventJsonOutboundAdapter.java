@@ -15,12 +15,9 @@
  */
 package com.esri.geoevent.solutions.adapter.eventJson;
 
-import java.io.IOException;
 import java.nio.BufferOverflowException;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -29,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.MapGeometry;
-import com.esri.core.geometry.Point;
 import com.esri.core.geometry.SpatialReference;
 import com.esri.ges.adapter.AdapterDefinition;
 import com.esri.ges.adapter.OutboundAdapterBase;
@@ -38,36 +34,26 @@ import com.esri.ges.core.geoevent.FieldDefinition;
 import com.esri.ges.core.geoevent.FieldGroup;
 import com.esri.ges.core.geoevent.FieldType;
 import com.esri.ges.core.geoevent.GeoEvent;
-import com.esri.ges.core.geoevent.GeoEventDefinition;
 
 public class EventJsonOutboundAdapter extends OutboundAdapterBase {
 	private static final Log LOG = LogFactory
 			.getLog(EventJsonOutboundAdapter.class);
-	private StringBuffer stringBuffer = new StringBuffer(10 * 1024);
-	private ByteBuffer byteBuffer = ByteBuffer.allocate(10 * 1024);
-	private Charset charset = Charset.forName("UTF-8");
-	private String dateFormat = "yyyy-MM-dd HH:mm:ss";
-	private SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
+	private StringBuilder stringBuilder = new StringBuilder();
+	private Charset charset;
 
 	public EventJsonOutboundAdapter(AdapterDefinition definition)
 			throws ComponentException {
 		super(definition);
+		charset = StandardCharsets.UTF_8;
 	}
 
-	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void receive(GeoEvent geoEvent) {
-		
 		try {
 			String eventJson = constructEventString(geoEvent);
-			stringBuffer.append(eventJson);
-			ByteBuffer buf = charset.encode(stringBuffer.toString());
-			if (buf.position() > 0)
-				buf.flip();
-			byteBuffer.put(buf);
-			byteBuffer.flip();
-			super.receive(byteBuffer, null, geoEvent);
-			byteBuffer.clear();
+			stringBuilder.append(eventJson);
+			super.receive(charset.encode(eventJson), geoEvent.getTrackId(), geoEvent);
+
 		} catch (BufferOverflowException ex) {
 			LOG.error("Csv Outbound Adapter does not have enough room in the buffer to hold the outgoing data.  Either the receiving transport object is too slow to process the data, or the data message is too big.");
 		}
@@ -160,7 +146,11 @@ public class EventJsonOutboundAdapter extends OutboundAdapterBase {
 				Geometry geo = mapGeo.getGeometry();
 				SpatialReference sr = mapGeo.getSpatialReference();
 				v = GeometryEngine.geometryToJson(sr, geo);
-			} 
+			}
+			else if (t==FieldType.String)
+			{
+				v = addStringQuotes(value.toString());
+			}
 			else if (t==FieldType.Date)
 			{
 				v = addStringQuotes(value.toString());
@@ -181,5 +171,6 @@ public class EventJsonOutboundAdapter extends OutboundAdapterBase {
 		}
 		return v;
 	}
+		
 	
 }

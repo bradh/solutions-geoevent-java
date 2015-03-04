@@ -17,5 +17,7 @@ public class EventJsonInboundAdapterService extends AdapterServiceBase {
 	{
 		return new EventJsonInboundAdapter(definition);
 	}
+	
+	
 
 }
