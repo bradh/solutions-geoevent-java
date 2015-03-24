@@ -1,0 +1,15 @@
+<connectorDefinition label="Send Cursor on Target message"
+	name="cot-out" type="outbound">
+	<adapter uri="com.esri.geoevent.solutions.adapter.webeoc.outbound/WebEOCAdapterOut/10.3.0" />
+	<transport uri="com.esri.geoevent.solutions.transport.webeoc.outbound/WebEOCTransportOut/10.3.0" />
+	<defaultName>WebEOCOut</defaultName>
+	<description></description>
+	<properties>
+		<shown>
+			
+		</shown>
+		<advanced />
+		<hidden>
+		</hidden>
+	</properties>
+</connectorDefinition>

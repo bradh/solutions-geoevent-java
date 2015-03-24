@@ -1,0 +1,16 @@
+<connectorDefinition label="" name="webeoc-in"
+	type="inbound">
+	<description></description>
+	<defaultName>webeoc-in</defaultName>
+	<transport uri="com.esri.geoevent.solutions.transport.webeoc.inbound/WebEOCTransportIn/10.3.0" />
+	<adapter
+		uri="com.esri.geoevent.solutions.adapter.webeoc.inbound/WebEOCAdapterIn/10.3.0" />
+	<properties>
+		<shown>
+			
+		</shown>
+		<advanced />
+		<hidden>
+		</hidden>
+	</properties>
+</connectorDefinition>
