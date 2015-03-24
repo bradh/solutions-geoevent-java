@@ -211,11 +211,6 @@ public class VisibilityProcessorDefinition extends GeoEventProcessorDefinitionBa
 			propertyDefinitions.put(procUnitsElev.getPropertyName(),
 					procUnitsElev);
 
-			PropertyDefinition procWKIDIn = new PropertyDefinition("wkidin",
-					PropertyType.Integer, 4326, lblWKIDIn,
-					descWKIDIn, true, false);
-			propertyDefinitions.put(procWKIDIn.getPropertyName(), procWKIDIn);
-
 			PropertyDefinition procWKIDBuffer = new PropertyDefinition(
 					"wkidbuffer", PropertyType.Integer, 3857, lblWKIDProc,
 					descWKIDProc, true, false);

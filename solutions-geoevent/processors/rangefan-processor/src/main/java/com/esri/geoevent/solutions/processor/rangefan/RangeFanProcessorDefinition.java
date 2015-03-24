@@ -50,41 +50,32 @@ public class RangeFanProcessorDefinition extends
 			LabeledValue("${com.esri.geoevent.solutions.processor.rf.rangefan-processor.SRC_EVENT_DEF}","geodef"));
 			allowedGeoSources.add(new
 			LabeledValue("${com.esri.geoevent.solutions.processor.rf.rangefan-processor.SRC_COORD_FIELDS}","coord"));
-			//allowedGeoSources.add(new LabeledValue("GeoEvent", "event"));
-			//allowedGeoSources
-					//.add(new LabeledValue("Event Definition", "geodef"));
-			//allowedGeoSources
-					//.add(new LabeledValue("Coordinate Fields", "coord"));
-			// PropertyDefinition procGeometrySource = new PropertyDefinition(
-			// "geosrc", PropertyType.String,
-			// "${com.esri.geoevent.solutions.processor.rangefan.rangefan-processor.SRC_GEOEVENT_LBL}",
-			// "Source of query geometry", "Source of query geometry",
-			// true, false, allowedGeoSources);
+			
 			PropertyDefinition procGeometrySource = new PropertyDefinition(
 					"geosrc", PropertyType.String, "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.SRC_GEOEVENT}",
-					"Source of query geometry", "Source of query geometry",
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_GEOMETRY_SRC}", "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_GEOMETRY_SRC}",
 					true, false, allowedGeoSources);
 			propertyDefinitions.put(procGeometrySource.getPropertyName(),
 					procGeometrySource);
 
 			PropertyDefinition procGeometryEventFld = new PropertyDefinition(
 					"geoeventfld", PropertyType.String, "Geometry",
-					"Geometry Event Field",
-					"Geoevent field containing buffer geometry data", false,
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_GEOMETRY_FIELD}",
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_GEOMETRY_FIELD}", false,
 					false);
 			procGeometryEventFld.setDependsOn("geosrc=geodef");
 			propertyDefinitions.put(procGeometryEventFld.getPropertyName(),
 					procGeometryEventFld);
 
 			PropertyDefinition procXField = new PropertyDefinition("xfield",
-					PropertyType.String, "longitude", "X-Coord Field",
-					"field holding x-coordinate", false, false);
+					PropertyType.String, "longitude", "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_X_FIELD}",
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_X_FIELD}", false, false);
 			procXField.setDependsOn("geosrc=coord");
 			propertyDefinitions.put(procXField.getPropertyName(), procXField);
 
 			PropertyDefinition procYField = new PropertyDefinition("yfield",
-					PropertyType.String, "latitude", "Y-Coord Field",
-					"field holding y-coordinate", false, false);
+					PropertyType.String, "latitude", "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_Y_FIELD}",
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_Y_FIELD}", false, false);
 			procYField.setDependsOn("geosrc=coord");
 			propertyDefinitions.put(procYField.getPropertyName(), procYField);
 
@@ -93,34 +84,26 @@ public class RangeFanProcessorDefinition extends
 			LabeledValue("${com.esri.geoevent.solutions.processor.rf.rangefan-processor.SRC_CONSTANT}","Constant"));
 			allowedSources.add(new
 			LabeledValue("${com.esri.geoevent.solutions.processor.rf.rangefan-processor.SRC_EVENT}","Event"));
-			//allowedSources.add(new LabeledValue("Constant", "Constant"));
-			//allowedSources.add(new LabeledValue("Event", "Event"));
-			//PropertyDefinition procRangeSource = new PropertyDefinition(
-					//"rangeSource",
-					//PropertyType.String,
-					//"${com.esri.geoevent.solutions.processor.rangefan.rangefan-processor.SRC_CONSTANT_LBL}",
-					//"Range Source", "Source of range Value", true, false,
-					//allowedSources);
 					
 			PropertyDefinition procRangeSource = new PropertyDefinition(
 							"rangeSource",
 							PropertyType.String,
 							"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.SRC_CONSTANT}",
-							"Range Source", "Source of range Value", true, false,
+							"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_RANGE_SRC}", "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_RANGE_SRC}", true, false,
 							allowedSources);		
 			propertyDefinitions.put(procRangeSource.getPropertyName(),
 					procRangeSource);
 
 			PropertyDefinition procRange = new PropertyDefinition("range",
-					PropertyType.Double, 1000, "Range",
-					"Maximum distance from event for analysis", true, false);
+					PropertyType.Double, 1000, "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_RANGE}",
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_RANGE}", true, false);
 			procRange.setDependsOn("rangeSource=Constant");
 			propertyDefinitions.put(procRange.getPropertyName(), procRange);
 
 			PropertyDefinition procRangeEvent = new PropertyDefinition(
 					"rangeEvent", PropertyType.String, "range",
-					"Range Event Field",
-					"Geoevent field containing range data", true, false);
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_RANGE_FIELD}",
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_RANGE_FIELD}", true, false);
 			procRangeEvent.setDependsOn("rangeSource=Event");
 			propertyDefinitions.put(procRangeEvent.getPropertyName(),
 					procRangeEvent);
@@ -136,15 +119,10 @@ public class RangeFanProcessorDefinition extends
 			LabeledValue("${com.esri.geoevent.solutions.processor.rf.rangefan-processor.UNITS_MILES}","Miles"));
 			unitsAllowedVals.add(new
 			LabeledValue("${com.esri.geoevent.solutions.processor.rf.rangefan-processor.UNITS_NM}","Nautical Miles"));
-			//unitsAllowedVals.add(new LabeledValue("Meters", "Meters"));
-			//unitsAllowedVals.add(new LabeledValue("Kilometers", "Kilometers"));
-			//unitsAllowedVals.add(new LabeledValue("Feet", "Feet"));
-			//unitsAllowedVals.add(new LabeledValue("Miles", "Miles"));
-			//unitsAllowedVals.add(new LabeledValue("Nautical Miles",
-					//"Nautical Miles"));
+			
 			PropertyDefinition procUnits = new PropertyDefinition("units",
-					PropertyType.String, "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.UNITS_METERS}", "Range Units",
-					"Units of measurement", true, false, unitsAllowedVals);
+					PropertyType.String, "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.UNITS_METERS}", "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_UNITS}",
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_UNITS}", true, false, unitsAllowedVals);
 
 			propertyDefinitions.put(procUnits.getPropertyName(), procUnits);
 
@@ -152,13 +130,13 @@ public class RangeFanProcessorDefinition extends
 					"bearingSource",
 					PropertyType.String,
 					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.SRC_CONSTANT}",
-					"Bearing Source", "Source of Bearing Value", true, false,
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_BEARING_SRC}", "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_BEARING_SRC}", true, false,
 					allowedSources);
 			propertyDefinitions.put(procBearingSource.getPropertyName(),
 					procBearingSource);
 
 			PropertyDefinition procBearingC = new PropertyDefinition("bearing",
-					PropertyType.Double, 0, "Bearing", "Bearing Angle", true,
+					PropertyType.Double, 0, "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_BEARING}", "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_BEARING}", true,
 					false);
 			procBearingC.setDependsOn("bearingSource=Constant");
 			propertyDefinitions.put(procBearingC.getPropertyName(),
@@ -166,8 +144,8 @@ public class RangeFanProcessorDefinition extends
 
 			PropertyDefinition procBearingEvent = new PropertyDefinition(
 					"bearingEvent", PropertyType.String, "bearing",
-					"Bearing Event Field",
-					"Geoevent field containing bearing data", true, false);
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_BEARING_FIELD}",
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_BEARING_FIELD}", true, false);
 			procBearingEvent.setDependsOn("bearingSource=Event");
 			propertyDefinitions.put(procBearingEvent.getPropertyName(),
 					procBearingEvent);
@@ -176,41 +154,36 @@ public class RangeFanProcessorDefinition extends
 					"traversalSource",
 					PropertyType.String,
 					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.SRC_CONSTANT}",
-					"Traversal Source", "Source of Traversal Value", true,
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_TRAVERSAL_SRC}", "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_TRAVERSAL_SRC}", true,
 					false, allowedSources);
 			propertyDefinitions.put(procTraversalSource.getPropertyName(),
 					procTraversalSource);
 
 			PropertyDefinition procTraversal = new PropertyDefinition(
-					"traversal", PropertyType.Double, 30, "Traversal",
-					"Traversal Angle - (>0 and <360 degrees)", true, false);
+					"traversal", PropertyType.Double, 30, "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_TRAVERSAL}",
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_TRAVERSAL}", true, false);
 			procTraversal.setDependsOn("traversalSource=Constant");
 			propertyDefinitions.put(procTraversal.getPropertyName(),
 					procTraversal);
 
 			PropertyDefinition procTraversalEvent = new PropertyDefinition(
 					"traversalEvent", PropertyType.String, "traversal",
-					"Traversal Event Field",
-					"Geoevent field containing traversal angle data", true,
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_TRAVERSAL_FIELD}",
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_TRAVERSAL_FIELD}", true,
 					false);
 			procTraversalEvent.setDependsOn("traversalSource=Event");
 			propertyDefinitions.put(procTraversalEvent.getPropertyName(),
 					procTraversalEvent);
 
-			PropertyDefinition procWKIDIn = new PropertyDefinition("wkidin",
-					PropertyType.Integer, 4326, "Input WKID",
-					"Coordinate system of input feature", true, false);
-			propertyDefinitions.put(procWKIDIn.getPropertyName(), procWKIDIn);
-
 			PropertyDefinition procWKIDBuffer = new PropertyDefinition(
-					"wkidbuffer", PropertyType.Integer, 3857, "Processor WKID",
-					"Coordinate system to calculate the buffer", true, false);
+					"wkidbuffer", PropertyType.Integer, 3857, "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_PROC_WKID}",
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_PROC_WKID}", true, false);
 			propertyDefinitions.put(procWKIDBuffer.getPropertyName(),
 					procWKIDBuffer);
 
 			PropertyDefinition procWKIDOut = new PropertyDefinition("wkidout",
-					PropertyType.Integer, 4326, "Output WKID",
-					"Output Coordinate system", true, false);
+					PropertyType.Integer, 4326, "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.LBL_OUTPUT_WKID}",
+					"${com.esri.geoevent.solutions.processor.rf.rangefan-processor.DESC_OUTPUT_WKID}", true, false);
 			propertyDefinitions.put(procWKIDOut.getPropertyName(), procWKIDOut);
 		} catch (PropertyException e) {
 			LOG.error(e.getMessage());
@@ -237,12 +210,12 @@ public class RangeFanProcessorDefinition extends
 
 	@Override
 	public String getLabel() {
-		return "Range Fan Processor";
+		return "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.PROC_LBL}";
 	}
 
 	@Override
 	public String getDescription() {
-		return "Returns range fan derived from event center, range, bearing, and traversal angle";
+		return "${com.esri.geoevent.solutions.processor.rf.rangefan-processor.PROC_DESC}";
 	}
 
 	@Override

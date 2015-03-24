@@ -25,6 +25,9 @@ package com.esri.geoevent.solutions.processor.ellipse;
 
 import java.util.HashMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.MapGeometry;
@@ -38,6 +41,18 @@ import com.esri.ges.processor.GeoEventProcessorDefinition;
 
 public class EllipseProcessor extends GeoEventProcessorBase {
 	private static HashMap<String, Integer> wkidLookup = new HashMap<String, Integer>();
+	private static final Log LOG = LogFactory.getLog(EllipseProcessor.class);
+	private Double majorAxisRadius = Double.NaN;
+	private String majorAxisField;
+	private Double minorAxisRadius = Double.NaN;
+	private String minorAxisField;
+	private Double rotation = Double.NaN;
+	private String rotationField;
+	private String units;
+	private Integer inwkid;
+	private Integer outwkid;
+	private Integer procwkid;
+	
 	public EllipseProcessor(GeoEventProcessorDefinition definition)
 			throws ComponentException {
 		super(definition);
@@ -48,10 +63,10 @@ public class EllipseProcessor extends GeoEventProcessorBase {
 		wkidLookup.put("NAUTICAL_MILE", 9030);
 		geoEventMutator= true;
 	}
-
+	
 	@Override
-	public GeoEvent process(GeoEvent ge) throws Exception {
-		double majorAxisRadius;
+	public void afterPropertiesSet()
+	{
 		String majAxisSource = properties.get("majorAxisSource").getValue().toString();
 		if(majAxisSource.equals("Constant"))
 		{
@@ -59,11 +74,8 @@ public class EllipseProcessor extends GeoEventProcessorBase {
 		}
 		else
 		{
-			String eventfld = properties.get("majorAxisEvent").getValue().toString();
-			String[] arr = eventfld.split(":");
-			majorAxisRadius = (Double)ge.getField(arr[1]);
+			majorAxisField =properties.get("majorAxisEvent").getValueAsString();
 		}
-		double minorAxisRadius;
 		String minAxisSource = properties.get("minorAxisSource").getValue().toString();
 		if(minAxisSource.equals("Constant"))
 		{
@@ -71,11 +83,9 @@ public class EllipseProcessor extends GeoEventProcessorBase {
 		}
 		else
 		{
-			String eventfld = properties.get("minorAxisEvent").getValue().toString();
-			String[] arr = eventfld.split(":");
-			minorAxisRadius = (Double)ge.getField(arr[1]);
+			minorAxisField = properties.get("minorAxisEvent").getValueAsString();
 		}
-		double rotation;
+		
 		String rotSource = properties.get("rotationSource").getValue().toString();
 		if(rotSource.equals("Constant"))
 		{
@@ -83,27 +93,47 @@ public class EllipseProcessor extends GeoEventProcessorBase {
 		}
 		else
 		{
-			String eventfld = properties.get("rotationEvent").getValue().toString();
-			String[] arr = eventfld.split(":");
-			rotation = (Double)ge.getField(arr[1]);
+			rotationField=properties.get("rotationEvent").getValueAsString();
 		}
+		units = properties.get("units").getValue().toString();
+		//inwkid = (Integer) properties.get("wkidin").getValue();
+		outwkid = (Integer) properties.get("wkidout").getValue();
+		procwkid = (Integer) properties.get("wkidbuffer").getValue();
+	}
+
+	@Override
+	public GeoEvent process(GeoEvent ge) throws Exception {
 		
-		int inwkid = (Integer) properties.get("wkidin").getValue();
-		int outwkid = (Integer) properties.get("wkidout").getValue();
-		int bufferwkid = (Integer) properties.get("wkidbuffer").getValue();
+		if(!ge.getGeoEventDefinition().getTagNames().contains("GEOMETRY"))
+		{
+			return null;
+		}
+		inwkid = ge.getGeometry().getSpatialReference().getID();
+		if(majorAxisRadius.isNaN())
+		{
+			majorAxisRadius = (Double)ge.getField(majorAxisField);
+		}
+		if(minorAxisRadius.isNaN())
+		{
+			minorAxisRadius = (Double)ge.getField(minorAxisField);
+		}
+		if(rotation.isNaN())
+		{
+			rotation=(Double)ge.getField(rotationField);
+		}
 		
 		MapGeometry mapGeo = ge.getGeometry();
 		Geometry geo = mapGeo.getGeometry();
 		if(!(geo instanceof Point))
 		{
-			//throw new IOException;
+			return null;
 		}
 		Point eventGeo = (Point)geo;
 		double x = eventGeo.getX();
 		double y = eventGeo.getY();
 		double rdeg = GeometryUtility.Geo2Arithmetic(rotation);
 		double r = Math.toRadians(rdeg);
-		MapGeometry ellipse = constructEllipse(x, y, majorAxisRadius, minorAxisRadius, r, inwkid, bufferwkid, outwkid);
+		MapGeometry ellipse = constructEllipse(x, y, majorAxisRadius, minorAxisRadius, r, inwkid, procwkid, outwkid);
 		ge.setGeometry(ellipse);
 		return ge;
 	}
@@ -116,6 +146,9 @@ public class EllipseProcessor extends GeoEventProcessorBase {
 		SpatialReference srIn = SpatialReference.create(wkidin);
 		SpatialReference srBuffer = SpatialReference.create(wkidbuffer);
 		SpatialReference srOut = SpatialReference.create(wkidout);
+		UnitConverter uc = new UnitConverter();
+		majorAxis = uc.Convert(majorAxis, units, srBuffer);
+		minorAxis = uc.Convert(minorAxis, units, srBuffer);
 		Point centerProj = (Point) GeometryEngine.project(center, srIn, srBuffer);
 		GeometryUtility geoutil = new GeometryUtility();
 		Polygon ellipse = geoutil.GenerateEllipse(centerProj, majorAxis, minorAxis, rotation);

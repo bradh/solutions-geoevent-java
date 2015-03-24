@@ -90,7 +90,7 @@ public class RangeFanProcessor extends GeoEventProcessorBase {
 			traversalConstant = (Double) properties.get("traversal").getValue();
 			traversalEventFld = properties.get("traversalEvent").getValue()
 					.toString();
-			inwkid = (Integer) properties.get("wkidin").getValue();
+			//inwkid = (Integer) properties.get("wkidin").getValue();
 			outwkid = (Integer) properties.get("wkidout").getValue();
 			bufferwkid = (Integer) properties.get("wkidbuffer").getValue();
 
@@ -124,11 +124,7 @@ public class RangeFanProcessor extends GeoEventProcessorBase {
 					"A constant traversal must be > 0 and < 360");
 		}
 
-		try {
-			srIn = SpatialReference.create(inwkid);
-		} catch (Exception e) {
-			throw new ValidationException("The input wkid is invalid");
-		}
+		
 
 		try {
 			srBuffer = SpatialReference.create(bufferwkid);
@@ -148,6 +144,12 @@ public class RangeFanProcessor extends GeoEventProcessorBase {
 	public GeoEvent process(GeoEvent ge) throws Exception {
 
 		try {
+			if(!ge.getGeoEventDefinition().getTagNames().contains("GEOMETRY"))
+			{
+				return null;
+			}
+			srIn=ge.getGeometry().getSpatialReference();	
+			inwkid = srIn.getID();
 			double range;
 			if (rangeSource.equals("Constant")) {
 				range = rangeConstant;

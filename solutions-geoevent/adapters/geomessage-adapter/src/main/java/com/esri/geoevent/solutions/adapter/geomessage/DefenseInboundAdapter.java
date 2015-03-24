@@ -20,7 +20,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -28,6 +30,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
 import org.xml.sax.SAXException;
 
 import com.esri.core.geometry.MapGeometry;
@@ -162,8 +165,8 @@ public class DefenseInboundAdapter extends InboundAdapterBase
 							geoEvent.setField(fieldName, Double.parseDouble(fieldValue));
 							break;
 						case Float:
-              geoEvent.setField(fieldName, Float.parseFloat(fieldValue));
-              break;
+							geoEvent.setField(fieldName, Float.parseFloat(fieldValue));
+							break;
 						case Boolean:
 							geoEvent.setField(fieldName, Boolean.parseBoolean(fieldValue));
 							break;
@@ -191,6 +194,27 @@ public class DefenseInboundAdapter extends InboundAdapterBase
 							//int geometryID = geoEvent.getGeoEventDefinition().getGeometryId();
 							geoEvent.setGeometry(mapGeo);
 							break;
+						}
+						List<FieldDefinition> fdefs = geoEvent.getGeoEventDefinition().getFieldDefinitions();
+						Boolean hasStartTime = false;
+						for(FieldDefinition fd: fdefs)
+						{
+							List<String>tags = fd.getTags();
+							if(!tags.isEmpty())
+							{
+								if(tags.contains("TIME_START"))
+								{
+									hasStartTime=true;
+									break;
+								}
+							}
+						}
+						if (hasStartTime) {
+							if (geoEvent.getField("TIME_START") == null) {
+								long currentTime = System.currentTimeMillis();
+								Date time = new Date(currentTime);
+								geoEvent.setField("TIME_START", time);
+							}
 						}
 					}
 					catch (Exception ex)

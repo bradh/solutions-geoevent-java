@@ -55,7 +55,7 @@ public class EllipseProcessorDefinition extends GeoEventProcessorDefinitionBase 
 			allowedSources.add(new LabeledValue("${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.SRC_EVENT_LBL}","Event"));
 			PropertyDefinition procMajAxisSource = new PropertyDefinition(
 					"majorAxisSource", PropertyType.String, "",
-					"Major Axis Source", "Source of Major Axis Value", true,
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.LBL_MAJOR_AXIS_SOURCE}", "${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.DESC_MAJOR_AXIS_SOURCE}", true,
 					false, allowedSources);
 
 			propertyDefinitions.put(procMajAxisSource.getPropertyName(),
@@ -63,7 +63,7 @@ public class EllipseProcessorDefinition extends GeoEventProcessorDefinitionBase 
 
 			PropertyDefinition procMajorAxisRadius = new PropertyDefinition(
 					"majorAxisRadius", PropertyType.Double, 10000.0,
-					"Major Axis Radius", "Length of ellipse's major axis",
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.LBL_MAJOR_AXIS_RADIUS}", "${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.DESC_MAJOR_AXIS_RADIUS}",
 					true, false);
 			procMajorAxisRadius.setDependsOn("majorAxisSource=Constant");
 			propertyDefinitions.put(procMajorAxisRadius.getPropertyName(),
@@ -71,8 +71,8 @@ public class EllipseProcessorDefinition extends GeoEventProcessorDefinitionBase 
 
 			PropertyDefinition procMajAxisEvent = new PropertyDefinition(
 					"majorAxisEvent", PropertyType.String, "majorAxis",
-					"Major Axis Event Field",
-					"Geoevent field containing major axis data", true, false);
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.LBL_MAJOR_AXIS_FIELD}",
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.DESC_MAJOR_AXIS_FIELD}", true, false);
 			procMajAxisEvent.setDependsOn("majorAxisSource=Event");
 			
 			propertyDefinitions.put(procMajAxisEvent.getPropertyName(),
@@ -80,7 +80,7 @@ public class EllipseProcessorDefinition extends GeoEventProcessorDefinitionBase 
 
 			PropertyDefinition procMinAxisSource = new PropertyDefinition(
 					"minorAxisSource", PropertyType.String, "",
-					"Minor Axis Source", "Source of Minor Axis Value", true,
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.LBL_MINOR_AXIS_SOURCE}", "${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.DESC_MINOR_AXIS_SOURCE}", true,
 					false, allowedSources);
 
 			propertyDefinitions.put(procMinAxisSource.getPropertyName(),
@@ -88,16 +88,16 @@ public class EllipseProcessorDefinition extends GeoEventProcessorDefinitionBase 
 
 			PropertyDefinition procMinorAxisRadius = new PropertyDefinition(
 					"minorAxisRadius", PropertyType.Double, 5000.0,
-					"Minor Axis Radius",
-					"Length of ellipse's minor axis radius", true, false);
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.LBL_MINOR_AXIS_RADIUS}",
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.DESC_MINOR_AXIS_RADIUS}", true, false);
 			procMinorAxisRadius.setDependsOn("minorAxisSource=Constant");
 			propertyDefinitions.put(procMinorAxisRadius.getPropertyName(),
 					procMinorAxisRadius);
 
 			PropertyDefinition procMinAxisEvent = new PropertyDefinition(
 					"minorAxisEvent", PropertyType.String, "minorAxis",
-					"Minor Axis Event Field",
-					"Geoevent field containing minor axis data", true, false);
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.LBL_MINOR_AXIS_FIELD}",
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.DESC_MINOR_AXIS_FIELD}", true, false);
 			procMinAxisEvent.setDependsOn("minorAxisSource=Event");
 			propertyDefinitions.put(procMinAxisEvent.getPropertyName(),
 					procMinAxisEvent);
@@ -109,30 +109,30 @@ public class EllipseProcessorDefinition extends GeoEventProcessorDefinitionBase 
 			unitsAllowedVals.add(new LabeledValue("${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.UNITS_MILES_LBL}","Miles"));
 			unitsAllowedVals.add(new LabeledValue("${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.UNITS_NM_LBL}","Nautical Miles"));
 			PropertyDefinition procUnits = new PropertyDefinition("units",
-					PropertyType.String, "${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.UNITS_METERS_LBL}", "Units", "Units of measurement",
+					PropertyType.String, "${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.UNITS_METERS_LBL}", "${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.LBL_UNITS}", "${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.DESC_UNITS}",
 					true, false, unitsAllowedVals);
 			
 			propertyDefinitions.put(procUnits.getPropertyName(), procUnits);
 
 			PropertyDefinition procRotationSource = new PropertyDefinition(
 					"rotationSource", PropertyType.String, "",
-					"Rotation Source", "Source of Rotation Value", true, false, allowedSources);
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.LBL_ROTATION_SOURCE}", "${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.DESC_ROTATION_SOURCE}", true, false, allowedSources);
 			
 
 			propertyDefinitions.put(procRotationSource.getPropertyName(),
 					procRotationSource);
 
 			PropertyDefinition procRotationAngle = new PropertyDefinition(
-					"rotation", PropertyType.Double, 0.0, "rotation",
-					"Angle of rotation (geographic)", true, false);
+					"rotation", PropertyType.Double, 0.0, "${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.LBL_ROTATION}",
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.DESC_ROTATION}", true, false);
 			procRotationAngle.setDependsOn("rotationSource=Constant");
 			propertyDefinitions.put(procRotationAngle.getPropertyName(),
 					procRotationAngle);
 
 			PropertyDefinition procRotationEvent = new PropertyDefinition(
 					"rotationEvent", PropertyType.String, "rotation",
-					"Rotation Event Field",
-					"Geoevent field containing rotation data", true, false);
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.LBL_ROTATION_FIELD}",
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.DESC_ROTATION_FIELD}", true, false);
 			procRotationEvent.setDependsOn("rotationSource=Event");
 
 			propertyDefinitions.put(procRotationEvent.getPropertyName(),
@@ -144,14 +144,14 @@ public class EllipseProcessorDefinition extends GeoEventProcessorDefinitionBase 
 			propertyDefinitions.put(procWKIDIn.getPropertyName(), procWKIDIn);
 
 			PropertyDefinition procWKIDBuffer = new PropertyDefinition(
-					"wkidbuffer", PropertyType.Integer, 3857, "Processor WKID",
-					"Coordinate system to calculate the buffer", true, false);
+					"wkidbuffer", PropertyType.Integer, 3857, "${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.LBL_PROCESS_WKID}",
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.DESC_PROCESS_WKID}", true, false);
 			propertyDefinitions.put(procWKIDBuffer.getPropertyName(),
 					procWKIDBuffer);
 
 			PropertyDefinition procWKIDOut = new PropertyDefinition("wkidout",
-					PropertyType.Integer, 4326, "Output WKID",
-					"Output Coordinate system", true, false);
+					PropertyType.Integer, 4326, "${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.LBL_OUTPUT_WKID}",
+					"${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.DESC_OUTPUT_WKID}", true, false);
 			propertyDefinitions.put(procWKIDOut.getPropertyName(), procWKIDOut);
 		} catch (PropertyException e) {
 			LOG.error("Geometry processor");
@@ -182,12 +182,12 @@ public class EllipseProcessorDefinition extends GeoEventProcessorDefinitionBase 
 
 	@Override
 	public String getLabel() {
-		return "Ellipse Processor";
+		return "${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.PROC_LBL}";
 	}
 
 	@Override
 	public String getDescription() {
-		return "Returns ellipse derived from event center, major axis radial length, minor axis radial length, and rotation angle";
+		return "${com.esri.geoevent.solutions.processor.ellipse.ellipse-processor.PROC_DESC}";
 	}
 
 	@Override

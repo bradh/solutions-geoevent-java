@@ -169,7 +169,7 @@ public class QueryReportProcessor extends GeoEventProcessorBase {
 	{
 		radius = (Double)properties.get("radius").getValue();
 		units = properties.get("units").getValue().toString();
-		inwkid = (Integer) properties.get("wkidin").getValue();
+		//inwkid = (Integer) properties.get("wkidin").getValue();
 		outwkid = (Integer) properties.get("wkidout").getValue();
 		bufferwkid = (Integer) properties.get("wkidbuffer").getValue();
 		geoSrc = properties.get("geosrc").getValueAsString();
@@ -248,17 +248,7 @@ public class QueryReportProcessor extends GeoEventProcessorBase {
 			LOG.error(ve.getMessage());
 			throw ve;
 		}
-		try
-		{
-			srIn = SpatialReference.create(inwkid);
-		}
-		catch(Exception e)
-		{
-			LOG.error(e.getMessage());
-			ValidationException ve = new ValidationException("Invalid wkid");
-			LOG.error(ve.getMessage());
-			throw ve;
-		}
+		
 		try
 		{
 			srBuffer = SpatialReference.create(bufferwkid);
@@ -288,6 +278,12 @@ public class QueryReportProcessor extends GeoEventProcessorBase {
 	@Override
 	public GeoEvent process(GeoEvent ge) throws Exception {
 		//CreateQueryMap();
+		if(!ge.getGeoEventDefinition().getTagNames().contains("GEOMETRY"))
+		{
+			return null;
+		}
+		srIn=ge.getGeometry().getSpatialReference();
+		inwkid = srIn.getID();
 		currentEvent = ge;
 		List<FieldDefinition> fldDefs = ge.getGeoEventDefinition().getFieldDefinitions();
 		for(FieldDefinition fd: fldDefs)

@@ -109,7 +109,7 @@ public class BearingProcessor extends GeoEventProcessorBase {
 		}
 		if(dUseGeo)
 		{
-			MapGeometry mg = (MapGeometry)ge.getField(oGeoFldName);
+			MapGeometry mg = (MapGeometry)ge.getField(dGeoFldName);
 			Geometry d=mg.getGeometry();
 			if(d==null)
 			{
@@ -293,7 +293,7 @@ public class BearingProcessor extends GeoEventProcessorBase {
 	public void afterPropertiesSet() {
 		String osrc = properties.get("osrc").getValueAsString();
 		//if(osrc.equals("Geometry"))
-		if(osrc.equals("ogeo"))
+		if(osrc.equals("geo"))
 		{
 			oUseGeo = true;
 			oGeoFldName = properties.get("oGeoFld").getValueAsString();
@@ -306,7 +306,7 @@ public class BearingProcessor extends GeoEventProcessorBase {
 		}
 		
 		String dsrc = properties.get("dsrc").getValueAsString();
-		if(dsrc.equals("ogeo"))
+		if(dsrc.equals("geo"))
 		{
 			dUseGeo = true;
 			dGeoFldName = properties.get("dGeoFld").getValueAsString();

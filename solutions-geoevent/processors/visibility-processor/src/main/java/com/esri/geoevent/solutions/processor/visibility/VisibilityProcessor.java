@@ -114,7 +114,7 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 		}
 		units_elev = properties.get("units_elev").getValue().toString();
 		elevEventfld = properties.get("elevationEvent").getValue().toString();
-		inwkid = (Integer) properties.get("wkidin").getValue();
+		//inwkid = (Integer) properties.get("wkidin").getValue();
 		outwkid = (Integer) properties.get("wkidout").getValue();
 		procwkid = (Integer) properties.get("wkidbuffer").getValue();
 	}
@@ -125,7 +125,7 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 		super.validate();
 		try
 		{
-			srIn = SpatialReference.create(inwkid);
+			//srIn = SpatialReference.create(inwkid);
 			srBuffer = SpatialReference.create(procwkid);
 			srOut = SpatialReference.create(outwkid);
 		}
@@ -141,6 +141,12 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 	@Override
 	public GeoEvent process(GeoEvent ge) throws Exception {
 		double radius;
+		if(!ge.getGeoEventDefinition().getTagNames().contains("GEOMETRY"))
+		{
+			return null;
+		}
+		srIn=ge.getGeometry().getSpatialReference();
+		inwkid=srIn.getID();
 		if(isRadiusConstant)
 		{
 			radius = radiusConstant;

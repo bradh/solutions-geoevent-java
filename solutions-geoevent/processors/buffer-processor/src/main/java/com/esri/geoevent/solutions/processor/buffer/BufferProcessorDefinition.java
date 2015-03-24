@@ -62,7 +62,86 @@ public class BufferProcessorDefinition extends GeoEventProcessorDefinitionBase {
 	private String descWKIDOut = "${com.esri.geoevent.solutions.processor.buffer.buffer-processor.LBL_WKID_OUT}";
 	
 	public BufferProcessorDefinition() {
+		try {
 
+			List<String> unitsAllowedTypes = new ArrayList<String>();
+			unitsAllowedTypes.add("Meters");
+			unitsAllowedTypes.add("Kilometers");
+			unitsAllowedTypes.add("Feet");
+			unitsAllowedTypes.add("Miles");
+			unitsAllowedTypes.add("Nautical Miles");
+
+			List<LabeledValue> allowedRadiusSources = new ArrayList<LabeledValue>();
+			allowedRadiusSources.add(new LabeledValue(radSrcConstant,
+					"Constant"));
+			allowedRadiusSources.add(new LabeledValue(radSrcEvent, "Event"));
+			PropertyDefinition procRadiusSource = new PropertyDefinition(
+					"radiusSource", PropertyType.String, radSrcConstant,
+					lblRadSrc, descRadSrc, true, false, allowedRadiusSources);
+			propertyDefinitions.put(procRadiusSource.getPropertyName(),
+					procRadiusSource);
+
+			PropertyDefinition procRadius = new PropertyDefinition("radius",
+					PropertyType.Double, 0, lblRad, descRad, false, false);
+			procRadius.setDependsOn("radiusSource=Constant");
+			propertyDefinitions.put(procRadius.getPropertyName(), procRadius);
+
+			PropertyDefinition procRadiusEvent = new PropertyDefinition(
+					"radiusEvent", PropertyType.String, "", lblRadFld,
+					descRadFld, false, false);
+			procRadiusEvent.setDependsOn("radiusSource=Event");
+			// SetGeoEventAllowedFields(procRadiusEvent);
+			propertyDefinitions.put(procRadiusEvent.getPropertyName(),
+					procRadiusEvent);
+
+			List<LabeledValue> unitsAllowedVals = new ArrayList<LabeledValue>();
+			unitsAllowedVals
+					.add(new LabeledValue(
+							"${com.esri.geoevent.solutions.processor.buffer.buffer-processor.UNITS_METERS_LBL}",
+							"Meters"));
+			unitsAllowedVals
+					.add(new LabeledValue(
+							"${com.esri.geoevent.solutions.processor.buffer.buffer-processor.UNITS_KM_LBL}",
+							"Kilometers"));
+			unitsAllowedVals
+					.add(new LabeledValue(
+							"${com.esri.geoevent.solutions.processor.buffer.buffer-processor.UNITS_FT_LBL}",
+							"Feet"));
+			unitsAllowedVals
+					.add(new LabeledValue(
+							"${com.esri.geoevent.solutions.processor.buffer.buffer-processor.UNITS_MILES_LBL}",
+							"Miles"));
+			unitsAllowedVals
+					.add(new LabeledValue(
+							"${com.esri.geoevent.solutions.processor.buffer.buffer-processor.UNITS_NM_LBL}",
+							"Nautical Miles"));
+			PropertyDefinition procUnits = new PropertyDefinition(
+					"units",
+					PropertyType.String,
+					"${com.esri.geoevent.solutions.processor.buffer.buffer-processor.UNITS_METERS_LBL}",
+					lblUnits, descUnits, true, false, unitsAllowedVals);
+
+			propertyDefinitions.put(procUnits.getPropertyName(), procUnits);
+
+			PropertyDefinition procWKIDBuffer = new PropertyDefinition(
+					"wkidbuffer", PropertyType.Integer, 3857, lblWKIDProc,
+					descWKIDProc, true, false);
+			propertyDefinitions.put(procWKIDBuffer.getPropertyName(),
+					procWKIDBuffer);
+
+			PropertyDefinition procWKIDOut = new PropertyDefinition("wkidout",
+					PropertyType.Integer, 4326, lblWKIDOut, descWKIDOut, true,
+					false);
+			propertyDefinitions.put(procWKIDOut.getPropertyName(), procWKIDOut);
+		} catch (PropertyException e) {
+			LOG.error("Geometry processor");
+			LOG.error(e.getMessage());
+			LOG.error(e.getStackTrace());
+		} catch (Exception e) {
+			LOG.error("Geometry processor");
+			LOG.error(e.getMessage());
+			LOG.error(e.getStackTrace());
+		}
 	}
 
 	public void setManager(GeoEventDefinitionManager m) {

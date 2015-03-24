@@ -37,7 +37,7 @@ import com.esri.ges.core.validation.ValidationException;
 import com.esri.ges.manager.geoeventdefinition.GeoEventDefinitionManager;
 import com.esri.ges.processor.GeoEventProcessorBase;
 import com.esri.ges.processor.GeoEventProcessorDefinition;
-//import com.esri.ges.spatial.GeometryException;
+
 //import com.esri.ges.spatial.Spatial;
 
 public class BufferProcessor extends GeoEventProcessorBase {
