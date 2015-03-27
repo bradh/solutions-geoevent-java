@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import com.esri.ges.core.component.ComponentException;
 import com.esri.ges.core.property.PropertyException;
 import com.esri.ges.manager.geoeventdefinition.GeoEventDefinitionManager;
+import com.esri.ges.messaging.Messaging;
 import com.esri.ges.processor.GeoEventProcessor;
 import com.esri.ges.processor.GeoEventProcessorServiceBase;
 
@@ -37,6 +38,7 @@ public class VisibilityProcessorService extends GeoEventProcessorServiceBase {
 	private static final Log LOG = LogFactory
 			.getLog(VisibilityProcessorService.class);
 	public GeoEventDefinitionManager manager;
+	public Messaging messaging;
 
 	public VisibilityProcessorService() {
 		definition = new VisibilityProcessorDefinition();
@@ -45,7 +47,10 @@ public class VisibilityProcessorService extends GeoEventProcessorServiceBase {
 	@Override
 	public GeoEventProcessor create() throws ComponentException {
 		try {
-			return new VisibilityProcessor(definition, manager);
+			VisibilityProcessor vproc = new VisibilityProcessor(definition);
+			vproc.setManager(manager);
+			vproc.setMessaging(messaging);
+			return vproc;
 		} catch (ComponentException e) {
 			LOG.error("Geometry processor");
 			LOG.error(e.getMessage());
@@ -63,16 +68,11 @@ public class VisibilityProcessorService extends GeoEventProcessorServiceBase {
 	public void setManager(GeoEventDefinitionManager m) {
 		manager = m;
 	}
-
-	public void start() {
-		try {
-			VisibilityProcessorDefinition vDef = (VisibilityProcessorDefinition) definition;
-			vDef.setManager(manager);
-		} catch (Exception e) {
-			LOG.error("Geometry processor");
-			LOG.error(e.getMessage());
-			LOG.error(e.getStackTrace());
-		}
+	public void setMessaging(Messaging messaging)
+	{
+		this.messaging = messaging;
 	}
+	
+	
 
 }

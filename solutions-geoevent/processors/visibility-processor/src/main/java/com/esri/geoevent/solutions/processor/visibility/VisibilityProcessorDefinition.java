@@ -41,7 +41,7 @@ import com.esri.ges.manager.geoeventdefinition.GeoEventDefinitionManager;
 import com.esri.ges.processor.GeoEventProcessorDefinitionBase;
 
 public class VisibilityProcessorDefinition extends GeoEventProcessorDefinitionBase {
-	GeoEventDefinitionManager manager;
+	
 	private static final Log LOG = LogFactory
 			.getLog(VisibilityProcessorDefinition.class);
 	private String lblGPService="${com.esri.geoevent.solutions.processor.visibility.visibility-processor.LBL_GP_SERVICE}";
@@ -82,12 +82,7 @@ public class VisibilityProcessorDefinition extends GeoEventProcessorDefinitionBa
 	private String descWKIDOut="${com.esri.geoevent.solutions.processor.visibility.visibility-processor.DESC_WKID_OUT}";
 	
 	public VisibilityProcessorDefinition() {
-		// TODO Auto-generated constructor stub
-	}
-	
-	public void setManager(GeoEventDefinitionManager m) {
 		try {
-			this.manager = m;
 			PropertyDefinition procGpService = new PropertyDefinition(
 					"gpservice", PropertyType.String, "", lblGPService,
 					descGPService, true, false);
@@ -210,7 +205,8 @@ public class VisibilityProcessorDefinition extends GeoEventProcessorDefinitionBa
 
 			propertyDefinitions.put(procUnitsElev.getPropertyName(),
 					procUnitsElev);
-
+			PropertyDefinition pdOutDefName = new PropertyDefinition("outdefname", PropertyType.String, "viewshed_out", "${com.esri.geoevent.solutions.processor.visibility.visibility-processor.LBL_OUT_DEF_NAME}", "${com.esri.geoevent.solutions.processor.visibility.visibility-processor.DESC_OUT_DEF_NAME}", true, false);
+			propertyDefinitions.put(pdOutDefName.getPropertyName(), pdOutDefName);
 			PropertyDefinition procWKIDBuffer = new PropertyDefinition(
 					"wkidbuffer", PropertyType.Integer, 3857, lblWKIDProc,
 					descWKIDProc, true, false);
@@ -233,6 +229,7 @@ public class VisibilityProcessorDefinition extends GeoEventProcessorDefinitionBa
 
 		}
 	}
+	
 
 
 	@Override

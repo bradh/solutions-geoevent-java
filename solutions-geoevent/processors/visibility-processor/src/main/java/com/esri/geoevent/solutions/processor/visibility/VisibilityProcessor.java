@@ -30,7 +30,10 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -41,8 +44,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
@@ -51,13 +52,24 @@ import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.MapGeometry;
 import com.esri.core.geometry.Point;
+import com.esri.core.geometry.Polygon;
+import com.esri.core.geometry.Polyline;
 import com.esri.core.geometry.SpatialReference;
 import com.esri.ges.core.ConfigurationException;
 import com.esri.ges.core.component.ComponentException;
+import com.esri.ges.core.geoevent.DefaultFieldDefinition;
+import com.esri.ges.core.geoevent.FieldDefinition;
 import com.esri.ges.core.geoevent.FieldException;
+import com.esri.ges.core.geoevent.FieldType;
 import com.esri.ges.core.geoevent.GeoEvent;
+import com.esri.ges.core.geoevent.GeoEventDefinition;
+import com.esri.ges.core.geoevent.GeoEventPropertyName;
 import com.esri.ges.core.validation.ValidationException;
 import com.esri.ges.manager.geoeventdefinition.GeoEventDefinitionManager;
+import com.esri.ges.manager.geoeventdefinition.GeoEventDefinitionManagerException;
+import com.esri.ges.messaging.GeoEventCreator;
+import com.esri.ges.messaging.Messaging;
+import com.esri.ges.messaging.MessagingException;
 import com.esri.ges.processor.GeoEventProcessorBase;
 import com.esri.ges.processor.GeoEventProcessorDefinition;
 
@@ -68,6 +80,7 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 	private SpatialReference srIn;
 	private SpatialReference srBuffer;
 	private SpatialReference srOut;
+	private String outDefName;
 	private String gp;
 	private String is;
 	private String radiusSource;
@@ -80,19 +93,30 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 	private double elevConstant;
 	private Boolean isElevConstant=false;
 	private String units_elev;
-	int inwkid;
-	int outwkid;
-	int procwkid;
-	public VisibilityProcessor(GeoEventProcessorDefinition definition, GeoEventDefinitionManager m)
+	private int outwkid;
+	private int procwkid;
+	private Messaging messaging;
+	
+	public VisibilityProcessor(GeoEventProcessorDefinition definition)
 			throws ComponentException {
 		super(definition);
-		manager = m;
+		//manager = m;
 		//tagMgr=tm;
-		geoEventMutator= true;
+		geoEventMutator = true;
+		
+	}
+	public void setMessaging(Messaging messaging)
+	{
+		this.messaging = messaging;
+	}
+	public void setManager(GeoEventDefinitionManager manager)
+	{
+		this.manager = manager;
 	}
 	@Override 
 	public void afterPropertiesSet()
 	{
+		outDefName = properties.get("outdefname").getValueAsString();
 		gp = properties.get("gpservice").getValue().toString();
 		is = properties.get("imageservice").getValue().toString();
 		radiusSource = properties.get("radiusSource").getValue().toString();
@@ -114,7 +138,6 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 		}
 		units_elev = properties.get("units_elev").getValue().toString();
 		elevEventfld = properties.get("elevationEvent").getValue().toString();
-		//inwkid = (Integer) properties.get("wkidin").getValue();
 		outwkid = (Integer) properties.get("wkidout").getValue();
 		procwkid = (Integer) properties.get("wkidbuffer").getValue();
 	}
@@ -146,7 +169,6 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 			return null;
 		}
 		srIn=ge.getGeometry().getSpatialReference();
-		inwkid=srIn.getID();
 		if(isRadiusConstant)
 		{
 			radius = radiusConstant;
@@ -166,11 +188,11 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 		{
 			elevation = (Double)ge.getField(elevEventfld);
 		}
-		ConstructVisibilityRest(ge, gp, is, radius, radiusUnit,  elevation, units_elev, procwkid);
-		return ge;
+		GeoEvent outGeo= ConstructVisibilityRest(ge, gp, is, radius, radiusUnit,  elevation, units_elev, procwkid);
+		return outGeo;
 	}
 	
-	private void ConstructVisibilityRest(GeoEvent ge, String gpservice, String imageservice, double range, String unit,  double elevation, String units_elev, int wkid) throws UnsupportedEncodingException, IOException, ConfigurationException, FieldException 
+	private GeoEvent ConstructVisibilityRest(GeoEvent ge, String gpservice, String imageservice, double range, String unit,  double elevation, String units_elev, int wkid) throws UnsupportedEncodingException, IOException, ConfigurationException, FieldException, MessagingException, GeoEventDefinitionManagerException 
 	{
 		UnitConverter uc = new UnitConverter();
 		range = uc.Convert(range, unit, srBuffer);
@@ -228,8 +250,9 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 		HttpClient httpclient = HttpClientBuilder.create().build();
 		String observers = URLEncoder.encode(obs, "UTF-8");
 		imageservice = URLEncoder.encode(imageservice, "UTF-8");
+		String geoJson=GeometryEngine.geometryToJson(srBuffer, mask);
 		String jsonGeo = URLEncoder.encode(
-				GeometryEngine.geometryToJson(srBuffer, mask), "UTF-8");
+				geoJson, "UTF-8");
 
 		String args = "observers=" + observers + "&image_service_url="
 				+ imageservice + "&radius=" + ((Double) range).toString()
@@ -269,11 +292,11 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 					@SuppressWarnings("unchecked")
 					Map<String,Object> fset = (Map<String,Object>)r.get("value");
 					//String fsetJson = mapper.writeValueAsString(val);
+					@SuppressWarnings("unchecked")
 					List<HashMap<String, Object>> features = (ArrayList<HashMap<String,  Object>>)fset.get("features");
-					JsonFactory jf = new JsonFactory();
-					JsonParser jp = null;
 					for (HashMap<String, Object> feature : features) {
 
+						@SuppressWarnings("unchecked")
 						HashMap<String, Object> attributes = (HashMap<String, Object>) feature.get("attributes");
 						int code = (Integer) attributes.get(
 								"gridcode");
@@ -281,19 +304,17 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 						// com.esri.ges.spatial.Geometry tmpgesNonVis =
 						// null;
 						if (code == 0) {
-							String geoString = feature.get("geometry").toString();
-							jp = jf.createJsonParser(geoString);
-							MapGeometry tmpMapGeoVis = GeometryEngine.jsonToGeometry(jp);
-							Geometry tmpvis = tmpMapGeoVis.getGeometry();
+							@SuppressWarnings("unchecked")
+							Map<String, Object> objGeo = (Map<String, Object>) feature.get("geometry");
+							Geometry tmpvis = generateGeoFromMap(objGeo);
 							Geometry vis = GeometryEngine.project(tmpvis,
 									srBuffer, srOut);
 							visible = new MapGeometry(vis, srOut);
 
 						} else {
-							String geoString = feature.get("geometry").toString();
-							jp = jf.createJsonParser(geoString);
-							MapGeometry tmpMapGeoNonVis = GeometryEngine.jsonToGeometry(jp);
-							Geometry tmpnonvis = tmpMapGeoNonVis.getGeometry();
+							@SuppressWarnings("unchecked")
+							Map<String, Object> objGeo = (Map<String, Object>) feature.get("geometry");
+							Geometry tmpnonvis=generateGeoFromMap(objGeo);
 							Geometry nonvis = GeometryEngine.project(
 									tmpnonvis, srBuffer, srOut);
 							nonvisible = new MapGeometry(nonvis, srOut);
@@ -324,22 +345,38 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 			}
 		}
 		catch(Exception ex){}
-		/*GeoEventDefinition geoDef = ge.getGeoEventDefinition();
-		List<FieldDefinition>fieldDefs = geoDef.getFieldDefinitions();
+		GeoEventDefinition geoDef = ge.getGeoEventDefinition();
 		ArrayList<FieldDefinition> newFieldDefs = new ArrayList<FieldDefinition>();
-		for(FieldDefinition fieldDef: fieldDefs)
-		{
-			newFieldDefs.add(fieldDef);
-		}
-		FieldDefinition visFldDef = new DefaultFieldDefinition("visible", FieldType.Geometry, (String)null);
-		FieldDefinition nonvisFldDef = new DefaultFieldDefinition("nonvisible", FieldType.Geometry, (String)null);
+		FieldDefinition visFldDef = new DefaultFieldDefinition("visible", FieldType.Geometry, "GEOMETRY_VISIBLE");
+		FieldDefinition nonvisFldDef = new DefaultFieldDefinition("nonvisible", FieldType.Geometry, "GEOMETRY_NONVISIBLE");
 		newFieldDefs.add(visFldDef);
 		newFieldDefs.add(nonvisFldDef);
-		geoDef.setFieldDefinitions(newFieldDefs);*/
-		ge.setField("visible", visible);
-		ge.setField("nonvisible", nonvisible);
-		ge.setField("gcvis", new Integer(1));
-		ge.setField("gcnvis", new Integer(0));
+		GeoEventDefinition edOut;
+		Collection<GeoEventDefinition>eventDefs = manager.searchGeoEventDefinitionByName(outDefName);
+		Iterator<GeoEventDefinition>eventDefIt = eventDefs.iterator();
+		while(eventDefIt.hasNext())
+		{
+			GeoEventDefinition currentDef = eventDefIt.next();
+			manager.deleteGeoEventDefinition(currentDef.getGuid());
+		}
+		edOut = geoDef.augment(newFieldDefs);
+		edOut.setOwner(getId());
+		edOut.setName(outDefName);
+		manager.addGeoEventDefinition(edOut);
+
+		GeoEventCreator geoEventCreator = messaging.createGeoEventCreator();
+		GeoEvent geOut = geoEventCreator.create(edOut.getGuid(), new Object[] {
+				ge.getAllFields(), visible, nonvisible });
+		geOut.setProperty(GeoEventPropertyName.TYPE, "message");
+		geOut.setProperty(GeoEventPropertyName.OWNER_ID, getId());
+		geOut.setProperty(GeoEventPropertyName.OWNER_ID, definition.getUri());
+
+		for (Map.Entry<GeoEventPropertyName, Object> property : ge.getProperties())
+	        if (!geOut.hasProperty(property.getKey()))
+	          geOut.setProperty(property.getKey(), property.getValue());
+		//queries.clear();
+		//responseMap.clear();
+		return geOut;
 	}
 	
 	
@@ -352,6 +389,124 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 		return GeometryEngine.geometryToJson(srBuffer, maskGeo);
 	}
 	
+	private Geometry generateGeoFromMap(Map<String, Object> objGeo) throws Exception
+	{
+		Geometry geo = null;
+		if(objGeo.containsKey("rings"))
+		{
+			@SuppressWarnings("unchecked")
+			ArrayList<ArrayList<ArrayList<Object>>> rings= (ArrayList<ArrayList<ArrayList<Object>>>)objGeo.get("rings");
+			geo = generatePolygon(rings);
+		}
+		else if(objGeo.containsKey("paths"))
+		{
+			@SuppressWarnings("unchecked")
+			ArrayList<ArrayList<ArrayList<Object>>> paths= (ArrayList<ArrayList<ArrayList<Object>>>)objGeo.get("paths");
+			geo = generatePolyLine(paths);
+		}
+		else if(objGeo.containsKey("points"))
+		{
+			
+		}
+		else
+		{
+			Double x = Double.valueOf(objGeo.get("x").toString());
+			Double y = Double.valueOf(objGeo.get("y").toString());
+			if(objGeo.size() > 2)
+			{
+				Double z = Double.valueOf(objGeo.get("z").toString());
+				geo = generate3DPoint(x,y,z);
+			}
+			else
+			{
+				geo = generatePoint(x,y);
+			}
+		}
+		return geo;
+	}
 	
+	private Point generatePoint(Double x, Double y)
+	{
+		Point p = new Point(x, y);
+		return p;
+	}
+	
+	private Point generate3DPoint(Double x, Double y, Double z)
+	{
+		Point p = new Point(x, y, z);
+		return p;
+	}
+	
+	private Polyline generatePolyLine(ArrayList<ArrayList<ArrayList<Object>>> paths)
+	{
+		Polyline polyln = new Polyline();
+		for(ArrayList<ArrayList<Object>> path: paths)
+		{
+			Boolean firstPt = true;
+			for(ArrayList<Object> strPt: path)
+			{
+				Point p = null;
+				if(strPt.size() > 2)
+				{
+					Double x = (Double)strPt.get(0);
+					Double y = (Double)strPt.get(1);
+					Double z = (Double)strPt.get(2);
+					p = generate3DPoint(x,y,z);
+				}
+				else
+				{
+					Double x = (Double)strPt.get(0);
+					Double y = (Double)strPt.get(1);
+					p = generatePoint(x,y);
+				}
+				if(firstPt)
+				{
+					polyln.startPath(p);
+					firstPt = false;
+				}
+				else
+				{
+					polyln.lineTo(p);
+				}
+			}
+		}
+		return polyln;
+	}
+	
+	private Polygon generatePolygon(ArrayList<ArrayList<ArrayList<Object>>> paths) throws Exception
+	{
+		try {
+			Polygon polygon = new Polygon();
+			for (ArrayList<ArrayList<Object>> path : paths) {
+				Boolean firstPt = true;
+				for (ArrayList<Object> strPt : path) {
+					Point p = null;
+					if (strPt.size() > 2) {
+						
+						//String strY = strPt.get(1);
+						//String strZ = strPt.get(2);
+						Double x = (Double)strPt.get(0);
+						Double y = (Double)strPt.get(1);
+						Double z = (Double)strPt.get(2);
+						p = generate3DPoint(x, y, z);
+					} else {
+						Double x = (Double)strPt.get(0);
+						Double y = (Double)strPt.get(1);
+						p = generatePoint(x, y);
+					}
+					if (firstPt) {
+						polygon.startPath(p);
+						firstPt = false;
+					} else {
+						polygon.lineTo(p);
+					}
+				}
+			}
+			polygon.closeAllPaths();
+			return polygon;
+		} catch (Exception e) {
+			throw (e);
+		}
+	}
 
 }
