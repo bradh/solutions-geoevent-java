@@ -4,14 +4,13 @@
 	default-activation="lazy">
 	<reference id="geoDefManagerService"
 		interface="com.esri.ges.manager.geoeventdefinition.GeoEventDefinitionManager" />
-
+	<reference id="messagingService" interface="com.esri.ges.messaging.Messaging" />
 
 	<bean id="visibilityProcessorServiceBean"
-		class="com.esri.geoevent.solutions.processor.visibility.VisibilityProcessorService"
-		init-method="start">
+		class="com.esri.geoevent.solutions.processor.visibility.VisibilityProcessorService">
 		<property name="bundleContext" ref="blueprintBundleContext" />
 		<property name="manager" ref="geoDefManagerService" />
-
+		<property name="messaging" ref="messagingService" />
 	</bean>
 
 	<service id="visibilityProcessorService" ref="visibilityProcessorServiceBean"
