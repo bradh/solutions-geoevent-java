@@ -210,9 +210,27 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 		}
 		
 		MapGeometry eventGeo = ge.getGeometry();
+		Geometry tmpGeo = eventGeo.getGeometry();
+		Geometry projectedGeo = null;
 		
-		Geometry tmpmask = eventGeo.getGeometry();
-		Geometry mask = GeometryEngine.project(tmpmask, srIn, srBuffer);
+		if( srIn.getID() != procwkid )
+		{
+			projectedGeo = GeometryEngine.project(tmpGeo, srIn, srBuffer);
+		}
+		else
+		{
+			projectedGeo = tmpGeo;
+		}
+		Geometry mask = null;
+		if(tmpGeo.getType()==Geometry.Type.Polygon)
+		{
+			mask = projectedGeo;
+		}
+		else
+		{
+			mask = GeometryEngine.buffer(projectedGeo, srBuffer, range);
+		}
+		
 		Envelope extent = new Envelope();
 		String obs = "";
 		if(properties.get("observerSource").getValueAsString().equals("Geoevent"))
@@ -344,7 +362,9 @@ public class VisibilityProcessor extends GeoEventProcessorBase {
 				}
 			}
 		}
-		catch(Exception ex){}
+		catch(Exception ex){
+			return null;
+		}
 		GeoEventDefinition geoDef = ge.getGeoEventDefinition();
 		ArrayList<FieldDefinition> newFieldDefs = new ArrayList<FieldDefinition>();
 		FieldDefinition visFldDef = new DefaultFieldDefinition("visible", FieldType.Geometry, "GEOMETRY_VISIBLE");

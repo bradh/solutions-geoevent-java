@@ -98,7 +98,6 @@ public class VisibilityProcessorDefinition extends GeoEventProcessorDefinitionBa
 
 			List<LabeledValue> allowedObsSrc = new ArrayList<LabeledValue>();
 			allowedObsSrc.add(new LabeledValue("${com.esri.geoevent.solutions.processor.visibility.visibility-processor.OBS_SRC_GEOEVENT}", "Geoevent"));
-			allowedObsSrc.add(new LabeledValue("${com.esri.geoevent.solutions.processor.visibility.visibility-processor.OBS_SRC_CONSTANT}", "Constant"));
 			allowedObsSrc.add(new LabeledValue("${com.esri.geoevent.solutions.processor.visibility.visibility-processor.OBS_SRC_FIELD}", "Field"));
 			PropertyDefinition procObserverSource = new PropertyDefinition(
 					"observerSource", PropertyType.String, "${com.esri.geoevent.solutions.processor.visibility.visibility-processor.OBS_SRC_GEOEVENT}",
