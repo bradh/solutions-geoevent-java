@@ -1,13 +1,13 @@
-# Field Grouper Processor
+# Event Joiner Processor
 
 <DESCRIPTION>  
 
-![Image of Field Grouper Processor]<PROCESSOR_PICTURE_NAME>.PNG
+![Image of Event Joiner Processor]<PROCESSOR_PICTURE_NAME>.PNG
 
 ## Features 
 
 
-* Field Grouper Processor - <DESCRIPTION>
+* Event Joiner Processor - <DESCRIPTION>
 
 
 ## Sections
@@ -29,13 +29,13 @@
     * verifying your Maven installation
     * setting the location of GeoEvent Processor and GeoEvent Processor SDK repositories
     * and any other common required steps
-* Open a command prompt and navigate to `solutions-geoevent-java/solutions-geoevent/processors/10.3.0/processors/fieldgrouper-processor`
+* Open a command prompt and navigate to `solutions-geoevent-java/solutions-geoevent/processors/eventjoiner-processor`
     * Enter `mvn install` at the prompt.
 
 ## Installation
 
-* Install the Field Grouper Processor.
-    * Browse to `solutions-geoevent-java/solutions-geoevent/10.3.0/processors/fieldgrouper-processor/target` (this directory is created when you execute mvn install).
+* Install the Event Joiner Processor.
+    * Browse to `solutions-geoevent-java/solutions-geoevent/10.3.0/processors/eventjoiner-processor/target` (this directory is created when you execute mvn install).
     * Copy the .jar file and paste it into the deploy folder in the GeoEvent Processor install directory ([GeoEvent Processor install location]\deploy\ -- default location is C:\Program Files\ArcGIS\Server\GeoEventProcessor\deploy).
 
 
@@ -44,12 +44,12 @@
 ### Validating the Installation
  
 * See the [solutions-geoevent-java validation instructions](../../../README.md#validating-install).
-    * Ensure the Field Grouper Processor exists.
+    * Ensure the Event Joiner Processor exists.
 
 ### Testing with Simulated Test Data
 
 * In the following steps you will configure GeoEvent Processor to receive and process simulated data.
-* The following example configures the Field Grouper Processor, the other processors can be configured in a similar manner.
+* The following example configures the Event Joiner Processor, the other processors can be configured in a similar manner.
 
 * Open GeoEvent Processor Manager.
 * Create a new GeoEvent definition 
@@ -106,7 +106,7 @@ in the GeoEvent Definition Name textbox and click 'Create'
 
 * In GeoEvent Processor Manager, navigate to ‘Services’ > ‘Monitor’ and observe the GeoEvent Processor components. You should see the newly created service and it should have a status of 'Started'.
 
-* Using the GeoEvent Simulator, load the simulation file located at  solutions-geoevent-java\data\simulation_files\fieldgrouper.csv
+* Using the GeoEvent Simulator, load the simulation file located at  solutions-geoevent-java\data\simulation_files\eventjoiner.csv
 * Set the listening server to your geoevent server instance (local host if the simulator is on the same machine as geoevent server)
 * Set the port to the same value as you set the input services port and click the connect button
 * Click the 'Play' button to run the simulation
