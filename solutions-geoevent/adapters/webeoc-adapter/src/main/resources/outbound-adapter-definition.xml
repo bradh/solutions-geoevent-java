@@ -1,4 +1,4 @@
-<adapter name="WebEOCAdapterOut" label="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.ADAPTER_LABEL}" domain="com.esri.geoevent.solutions.adapter.webeoc.outbound" type="outbound">
-	<description>${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.ADAPTER_DESCRIPTION}</description>
+<adapter name="WebEOCAdapterOut" label="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.OUTBOUND_ADAPTER_LABEL}" domain="com.esri.geoevent.solutions.adapter.webeoc.outbound" type="outbound">
+	<description>${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.OUTBOUND_ADAPTER_DESCRIPTION}</description>
 	<propertyDefinitions/>
 </adapter>

@@ -2,6 +2,7 @@ package com.esri.geoevent.solutions.adapter.webeoc;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -14,7 +15,7 @@ public class WebEOCMessageParser extends DefaultHandler {
 	//private static final String MESSAGES_TAG1  = "messages";
 	//private static final String MESSAGE_TAG1   = "message";
 	private static final String DATA_TAG  = "data";
-	private static final String RESULT_TAG   = "result";
+	private static final String RECORD_TAG   = "record";
 	
 	private enum MessageLevel
 	{
@@ -45,7 +46,7 @@ public class WebEOCMessageParser extends DefaultHandler {
 		{
 			messageLevel = MessageLevel.inMessages;
 		}
-		else if(messageLevel == MessageLevel.inMessages && (qName.equalsIgnoreCase(RESULT_TAG)))
+		else if(messageLevel == MessageLevel.inMessages && (qName.equalsIgnoreCase(RECORD_TAG)))
 		{
 			messageLevel = MessageLevel.inMessage;
 		}
@@ -68,9 +69,16 @@ public class WebEOCMessageParser extends DefaultHandler {
 		{
 			messageLevel = MessageLevel.root;
 		}
-		else if (messageLevel == MessageLevel.inMessage && (qName.equalsIgnoreCase(RESULT_TAG)))
+		else if (messageLevel == MessageLevel.inMessage && (qName.equalsIgnoreCase(RECORD_TAG)))
 		{
 			messageLevel = MessageLevel.inMessages;
+			if(adapter.getCreateDef())
+			{
+				adapter.CreateDef(attributes);
+				adapter.setCreateDef(false);
+			}
+			UUID uid = UUID.randomUUID();
+			attributes.put("trackid", uid.toString());
 			adapter.queueGeoEvent(attributes);
 			attributes.clear();
 		}

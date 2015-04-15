@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-	<bean id="webEOCInboundTransportServiceBean" class="com.esri.geoevent.solutions.Transport.webeoc.WebEOCInboundTransportService" activation="eager">
+	<bean id="webEOCInboundAdapterServiceBean" class="com.esri.geoevent.solutions.adapter.webeoc.WebEOCInboundAdapterService" activation="eager">
 		<property name="bundleContext" ref="blueprintBundleContext"/>
 	</bean>
-	<bean id="webEOCOutboundTransportServiceBean" class="com.esri.geoevent.solutions.transport.webeoc.WebEOCOutboundTransportService" activation="eager">
+	<bean id="webEOCOutboundAdapterServiceBean" class="com.esri.geoevent.solutions.adapter.webeoc.WebEOCOutboundAdapterService" activation="eager">
 		<property name="bundleContext" ref="blueprintBundleContext"/>
 	</bean>
-	<service id="webEOCInboundTransportService" ref="webEOCInboundTransportServiceBean" interface="com.esri.ges.Transport.TransportService"/>
-	<service id="webEOCOutboundTransportService" ref="webEOCOutboundTransportServiceBean" interface="com.esri.ges.Transport.TransportService"/>
+	<service id="webEOCInboundAdapterService" ref="webEOCInboundAdapterServiceBean" interface="com.esri.ges.adapter.AdapterService"/>
+	<service id="webEOCOutboundAdapterService" ref="webEOCOutboundAdapterServiceBean" interface="com.esri.ges.adapter.AdapterService"/>
 </blueprint>
