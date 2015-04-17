@@ -1,4 +1,4 @@
-package com.esri.geoevent.solutions.transport.webeoc;
+package test.com.esri.geoevent.solutions.transport.webeoc;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

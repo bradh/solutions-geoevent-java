@@ -5,43 +5,43 @@
 	<propertyDefinitions>
 		<propertyDefinition propertyName="geoeventDefinition"
 			label="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.LBL_EVENT_DEF}"
-			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_EVENT_DEF}}"
+			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_EVENT_DEF}"
 			propertyType="String" default="" mandatory="true" readOnly="false" />
 		<propertyDefinition propertyName="hasGeometry"
 			label="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.LBL_HAS_GEOMETRY}"
-			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_HAS_GEOMETRY}}"
+			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_HAS_GEOMETRY}"
 			propertyType="Boolean" default="false" mandatory="true" readOnly="false" />	
 		<propertyDefinition propertyName="x"
 			label="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.LBL_GEOMETRY_X}"
-			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_GEOMETRY_X}}"
+			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_GEOMETRY_X}"
 			propertyType="String" default="lon" mandatory="true" readOnly="false" dependsOn="hasGeometry=true"/>
 		<propertyDefinition propertyName="y"
 			label="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.LBL_GEOMETRY_Y}"
-			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_GEOMETRY_Y}}"
+			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_GEOMETRY_Y}"
 			propertyType="String" default="lat" mandatory="true" readOnly="false" dependsOn="hasGeometry=true"/>
 		<propertyDefinition propertyName="useGeocoding"
 			label="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.LBL_USE_GEOCODING}"
-			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_USE_GEOCODING}}"
+			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_USE_GEOCODING}"
 			propertyType="Boolean" default="false" mandatory="true" readOnly="false" dependsOn="hasGeometry=false"/>	
 		<propertyDefinition propertyName="geocodeService"
 			label="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.LBL_GEOCODE_SERVICE}"
-			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_GEOCODE_SERVICE}}"
+			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_GEOCODE_SERVICE}"
 			propertyType="String" default="" mandatory="false" readOnly="false" dependsOn="useGeocoding=true"/>
 		<propertyDefinition propertyName="score"
 			label="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.LBL_SCORE}"
-			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_SCORE}}"
+			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_SCORE}"
 			propertyType="Integer" default="70" mandatory="true" readOnly="false" dependsOn="useGeocoding=true"/>
 		<propertyDefinition propertyName="geocodeField"
 			label="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.LBL_GEOCODE_FIELD}"
-			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_GEOCODE_FIELD}}"
+			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_GEOCODE_FIELD}"
 			propertyType="String" default="" mandatory="false" readOnly="false" dependsOn="useGeocoding=true"/>
 		<propertyDefinition propertyName="cityfield"
 			label="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.LBL_CITY_FIELD}"
-			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_CITY_FIELD}}"
+			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_CITY_FIELD}"
 			propertyType="String" default="" mandatory="false" readOnly="false" dependsOn="useGeocoding=true"/>
 		<propertyDefinition propertyName="zipfield"
 			label="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.LBL_ZIPCODE_FIELD}"
-			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_ZIPCODE_FIELD}}"
+			description="${com.esri.geoevent.solutions.adapter.webeoc.webeoc-adapter.DESC_ZIPCODE_FIELD}"
 			propertyType="String" default="" mandatory="false" readOnly="false" dependsOn="useGeocoding=true"/>
 	</propertyDefinitions>
 </adapter>

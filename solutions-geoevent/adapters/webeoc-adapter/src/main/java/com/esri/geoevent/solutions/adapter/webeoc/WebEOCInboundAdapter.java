@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -64,11 +65,10 @@ public class WebEOCInboundAdapter extends InboundAdapterBase {
 	private Boolean useGeocoding;
 	private Boolean createdef = false;
 	private String geocodeService = null;
-	private String geocodeField = null;
 	private String xField;
 	private String yField;
-	private String cityField;
-	private String zipField;
+
+	private String arguments;
 	private Integer score;
 	private SAXParserFactory saxFactory;
 	private WebEOCMessageParser messageParser;
@@ -85,9 +85,11 @@ public class WebEOCInboundAdapter extends InboundAdapterBase {
 	private final static String dblRegex = "[\\+\\-]?\\d+\\.\\d+(?:[eE][\\+\\-]?\\d+)?";
 	private final static String intRegex = "[\\+\\-]?\\d+";
 	private static final String boolRegex = "^(True|False|TRUE|FALSE|true|false|Yes|No|YES|NO|yes|no|y|n)$";
+	private static final String tokenRegex = "\\$\\{(.*?)\\}$";
 	private Pattern DOUBLE_PATTERN;
 	private Pattern INTEGER_PATTERN;
 	private Pattern BOOLEAN_PATTERN;
+	private Pattern TOKEN_PATTERN;
 	private String pattern;
 
 	public WebEOCInboundAdapter(AdapterDefinition definition)
@@ -98,12 +100,17 @@ public class WebEOCInboundAdapter extends InboundAdapterBase {
 			DOUBLE_PATTERN = Pattern.compile(dblRegex);
 			INTEGER_PATTERN = Pattern.compile(intRegex);
 			BOOLEAN_PATTERN = Pattern.compile(boolRegex);
+			TOKEN_PATTERN = Pattern.compile(tokenRegex);
 			messageParser = new WebEOCMessageParser(this);
 			saxFactory = SAXParserFactory.newInstance();
 			saxParser = saxFactory.newSAXParser();
 		} catch (ParserConfigurationException e) {
 			LOG.error(e.getMessage());
 		} catch (SAXException e) {
+			LOG.error(e.getMessage());
+		}
+		catch(PatternSyntaxException e)
+		{
 			LOG.error(e.getMessage());
 		}
 	}
@@ -121,22 +128,31 @@ public class WebEOCInboundAdapter extends InboundAdapterBase {
 			if (useGeocoding) {
 				geocodeService = properties.get("geocodeService")
 						.getValueAsString();
-				geocodeField = properties.get("geocodeField")
-						.getValueAsString();
 				score = (Integer)properties.get("score")
 						.getValue();
-				String tmpCity = properties.get("cityfield")
+				arguments = properties.get("geocodeargs").getValueAsString();
+				/*String tmpCity = properties.get("cityfield")
 						.getValueAsString();
 				if(!tmpCity.isEmpty())
 				{
 					cityField=tmpCity;
+				}
+				String tmpState=properties.get("statefield").getValueAsString();
+				if(!tmpState.isEmpty())
+				{
+					statefield=tmpState;
+				}
+				String tmpCountry=properties.get("countryfield").getValueAsString();	
+				if(!tmpCountry.isEmpty())
+				{
+					countryfield=tmpState;
 				}
 				String tmpZip = properties.get("zipfield")
 						.getValueAsString();
 				if(!tmpZip.isEmpty())
 				{
 					zipField = tmpZip;
-				}
+				}*/
 				
 			}
 			manager = geoEventCreator.getGeoEventDefinitionManager();
@@ -159,7 +175,7 @@ public class WebEOCInboundAdapter extends InboundAdapterBase {
 	public synchronized void validate() throws ValidationException {
 
 		if (useGeocoding) {
-			if (geocodeService == null || geocodeField == null) {
+			if (geocodeService == null || arguments == null) {
 				ValidationException e = new ValidationException(
 						"Geocode Service and Geocode Field must not be empty.");
 				throw (e);
@@ -321,8 +337,8 @@ public class WebEOCInboundAdapter extends InboundAdapterBase {
 				}
 			}
 			if (hasGeometry) {
-				Double x = (Double) geoEvent.getField(xField);
-				Double y = (Double) geoEvent.getField(yField);
+				Double x = Double.parseDouble(fields.get(xField));
+				Double y = Double.parseDouble(fields.get(yField));
 				Point p = new Point(x, y);
 				SpatialReference sr = SpatialReference.create(4326);
 				MapGeometry mapGeo = new MapGeometry(p, sr);
@@ -330,6 +346,21 @@ public class WebEOCInboundAdapter extends InboundAdapterBase {
 					geoEvent.setGeometry(mapGeo);
 				} catch (FieldException e) {
 					LOG.error(e.getMessage());
+				}
+			}
+			else
+			{
+				if(useGeocoding)
+				{
+					MapGeometry geo = geocode(geocodeService, arguments, fields);
+					SpatialReference sr = SpatialReference.create(4326);
+					try {
+						geoEvent.setGeometry(geo);
+					} catch (FieldException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
 				}
 			}
 		}
@@ -469,13 +500,13 @@ public class WebEOCInboundAdapter extends InboundAdapterBase {
 		queue.clear();
 	}
 
-	private Geometry geocode(String geocodeService, String geocodeString,
-			String city, String zip) {
-		Geometry geo = null;
+	private MapGeometry geocode(String geocodeService,
+			String arguments, HashMap<String, String> fields) {
+		MapGeometry mapgeo = null;
 		String contentType = "application/json";
 		HttpClient httpclient = HttpClientBuilder.create().build();
 		try {
-			String args = "Address=";
+			/*String args = "Address=";
 			String address = URLEncoder.encode(geocodeString, "UTF-8");
 			args += address;
 			if (city != null) {
@@ -485,7 +516,8 @@ public class WebEOCInboundAdapter extends InboundAdapterBase {
 			if (zip != null) {
 				zip = URLEncoder.encode(zip, "UTF-8");
 				args += "&Zip=" + zip;
-			}
+			}*/
+			String args = parseArguments(arguments, fields);
 			String uri = geocodeService + "/" + "findAddressCandidates?" + args;
 			try {
 				HttpPost httppost = new HttpPost(uri);
@@ -508,9 +540,21 @@ public class WebEOCInboundAdapter extends InboundAdapterBase {
 						map = mapper.readValue(output,
 								new TypeReference<HashMap<String, Object>>() {
 								});
+						HashMap<String, Object> spRef = (HashMap<String, Object>)map.get("spatialReference");
+						Integer coordWkid = (Integer)spRef.get("wkid");
 						List<Object>candidates = (List<Object>) map.get("candidates");
 						HashMap<String, Object> item = (HashMap<String, Object>)candidates.get(0);
-						Integer score = (Integer)item.get("score");
+						Integer geocodescore = (Integer)item.get("score");
+						if(score <= geocodescore )
+						{
+							HashMap<String, Double> location = (HashMap<String, Double>)item.get("location");
+							Double x = location.get("x");
+							Double y = location.get("y");
+							Geometry geo = new Point(x, y);
+							SpatialReference sr = SpatialReference.create(coordWkid);
+							mapgeo = new MapGeometry(geo, sr);
+							
+						}
 						
 					} catch (IOException ex) {
 						// In case of an IOException the connection will be
@@ -546,10 +590,60 @@ public class WebEOCInboundAdapter extends InboundAdapterBase {
 				ex.printStackTrace();
 			}
 
-		} catch (UnsupportedEncodingException e) {
+		} catch (Exception e) {
 			LOG.error(e.getMessage());
 		}
-		return geo;
+		return mapgeo;
+	}
+	
+	private String parseArguments(String arguments,
+			HashMap<String, String> fields)
+			throws UnsupportedEncodingException, Exception {
+		try {
+			List<String> arglist = Arrays.asList(arguments.split(","));
+
+			String args = "";
+			Boolean isFirstIt = true;
+			for (String arg : arglist) {
+				if (!isFirstIt) {
+					args += "&";
+				}
+				isFirstIt = false;
+				String[] splitArg = arg.split(":");
+				String argname = splitArg[0];
+				String tmpArgVal = splitArg[1];
+				String val = null;
+				if (TOKEN_PATTERN.matcher(tmpArgVal).matches()) {
+					String fieldname = tmpArgVal.substring(2, (tmpArgVal.length() - 1));
+					val = fields.get(fieldname);
+				} else {
+					val = tmpArgVal;
+				}
+				
+				val = URLEncoder.encode(val, "UTF-8");
+				String argument = argname + "=" + val;
+				args += argument;
+			}
+			args += "&f=json";
+			return args;
+		} catch (UnsupportedEncodingException e) {
+			LOG.error(e.getMessage());
+			throw e;
+		} catch (Exception e) {
+			LOG.error(e.getMessage());
+			throw e;
+		}
+	}
+	
+	private String replaceIllegalChar(String in)
+	{
+		
+		in = in.replace("<", "&lt");
+		in = in.replace("&", "&amp");
+		in = in.replace(">", "&gt");
+		in = in.replace("\"", "&quot");
+		in = in.replace("'", "&apos");
+		return in;
 	}
 
 }
