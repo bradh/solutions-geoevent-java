@@ -7,9 +7,9 @@
 	<version>10.3.0</version>
 	<name>webeoc-transport</name>
 	<properties>
-      <cxf.version>2.7.10</cxf.version>
-      <project.build.sourceencoding>UTF-8</project.build.sourceencoding>
-  </properties>
+		<cxf.version>2.7.10</cxf.version>
+		<project.build.sourceencoding>UTF-8</project.build.sourceencoding>
+	</properties>
 	<repositories>
 		<repository>
 			<id>ages-sdk-repo</id>
@@ -47,15 +47,15 @@
 			<version>2.7.10</version>
 		</dependency>
 		<dependency>
-       <groupId>org.apache.cxf</groupId>
-       <artifactId>cxf-rt-frontend-jaxws</artifactId>
-       <version>${cxf.version}</version>
-    </dependency>
-    <dependency>
-       <groupId>org.apache.cxf</groupId>
-       <artifactId>cxf-rt-transports-http</artifactId>
-       <version>${cxf.version}</version>
-    </dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<pluginManagement>
@@ -85,11 +85,11 @@
 						<inherited>false</inherited>
 						<configuration>
 							<sourceRoot>${project.build.directory}/generated/cxf</sourceRoot>
-							
+
 							<wsdlOptions>
 								<wsdlOption>
 									<wsdl>${basedir}/src/main/resources/webeoc.wsdl</wsdl>
-									<!-- <wsdl>https://webeoc.chs.state.ma.us/eoc7/api.asmx?wsdl</wsdl>-->
+									<!-- <wsdl>https://webeoc.chs.state.ma.us/eoc7/api.asmx?wsdl</wsdl> -->
 								</wsdlOption>
 							</wsdlOptions>
 						</configuration>
@@ -115,7 +115,7 @@
 							com.esri.geoevent.solutions.transport.webeoc,
 							com.esi911.webeoc7.api._1_0,
 							com.esi911.webeoc7.api._1
-							
+
 						</Private-Package>
 					</instructions>
 				</configuration>

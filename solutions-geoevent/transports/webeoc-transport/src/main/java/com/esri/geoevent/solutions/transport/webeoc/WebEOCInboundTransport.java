@@ -127,8 +127,8 @@ public class WebEOCInboundTransport extends InboundTransportBase implements
 				throw (e);
 			}
 			credentials.setPosition(position);
-			ArrayOfWebEOCUser userArray = apiSoap.getUsersByPosition(credentials, position);
-			List<WebEOCUser> users = userArray.getWebEOCUser();
+			//ArrayOfWebEOCUser userArray = apiSoap.getUsersByPosition(credentials, position);
+			/*List<WebEOCUser> users = userArray.getWebEOCUser();
 			for (WebEOCUser u: users)
 			{
 				if(u.getUsername().equals(username))
@@ -142,7 +142,7 @@ public class WebEOCInboundTransport extends InboundTransportBase implements
 						throw (e);
 					}
 				}
-			}
+			}*/
 			ArrayOfString incidentArray = apiSoap.getIncidents(credentials);
 			List<String> incidents = incidentArray.getString();
 			if (!incidents.contains(incident)) {
@@ -154,7 +154,9 @@ public class WebEOCInboundTransport extends InboundTransportBase implements
 				throw (e);
 			}
 			credentials.setIncident(incident);
-			/*ArrayOfString boardArray = apiSoap.getBoardNames(credentials);
+			String ping = apiSoap.ping(credentials);
+			credentials.setJurisdiction("Boston");
+			ArrayOfString boardArray = apiSoap.getBoardNames(credentials);
 			List<String> boards = boardArray.getString();
 			if (!boards.contains(board)) {
 				ValidationException e = new ValidationException(
@@ -171,7 +173,7 @@ public class WebEOCInboundTransport extends InboundTransportBase implements
 								+ username);
 				LOG.error(e.getMessage());
 				throw (e);
-			}*/
+			}
 		} catch (Exception e) {
 			LOG.error(e.getMessage());
 			ValidationException ve = new ValidationException(
@@ -198,6 +200,7 @@ public class WebEOCInboundTransport extends InboundTransportBase implements
 				try {
 
 					results = apiSoap.getData(credentials, board, view);
+					results = replaceIllegalChar(results);
 					if (results != null) {
 						byte[] byteArray = results.getBytes();
 						receive(byteArray);
@@ -240,5 +243,15 @@ public class WebEOCInboundTransport extends InboundTransportBase implements
 			byteListener.receive(bb, channelId);
 			bb.clear();
 		}
+	}
+	
+	private String replaceIllegalChar(String in)
+	{
+		in = in.replace("<", "&lt");
+		in = in.replace("&", "&amp");
+		in = in.replace(">", "&gt");
+		in = in.replace("\"", "&quot");
+		in = in.replace("'", "&apos");
+		return in;
 	}
 }

@@ -649,9 +649,8 @@
 								<s:sequence>
 									<s:any minOccurs="0" maxOccurs="unbounded"
 										namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
-									<!--  <s:any minOccurs="1"
-										namespace="urn:schemas-microsoft-com:xml-diffgram-v1"
-										processContents="lax" />-->
+									<!-- <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" 
+										processContents="lax" /> -->
 								</s:sequence>
 							</s:complexType>
 						</s:element>
@@ -676,9 +675,8 @@
 								<s:sequence>
 									<s:any minOccurs="0" maxOccurs="unbounded"
 										namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
-									<!--  <s:any minOccurs="1"
-										namespace="urn:schemas-microsoft-com:xml-diffgram-v1"
-										processContents="lax" />-->
+									<!-- <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" 
+										processContents="lax" /> -->
 								</s:sequence>
 							</s:complexType>
 						</s:element>
@@ -704,9 +702,8 @@
 								<s:sequence>
 									<s:any minOccurs="0" maxOccurs="unbounded"
 										namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
-									<!-- <s:any minOccurs="1"
-										namespace="urn:schemas-microsoft-com:xml-diffgram-v1"
-										processContents="lax" />-->
+									<!-- <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" 
+										processContents="lax" /> -->
 								</s:sequence>
 							</s:complexType>
 						</s:element>
@@ -998,28 +995,33 @@
 	<wsdl:portType name="APISoap">
 		<wsdl:operation name="AddAttachment">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Attach a file to a
-				WebEOC board entry.</wsdl:documentation>
+				WebEOC board entry.
+			</wsdl:documentation>
 			<wsdl:input message="tns:AddAttachmentSoapIn" />
 			<wsdl:output message="tns:AddAttachmentSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="GetPositions">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Get a list of the WebEOC positions. Administrator access required
+				Get a list of the
+				WebEOC positions. Administrator access required
 			</wsdl:documentation>
 			<wsdl:input message="tns:GetPositionsSoapIn" />
 			<wsdl:output message="tns:GetPositionsSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="GetUserPositions">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Get a list of the WebEOC positions for the authenticated user.
+				Get a list of the
+				WebEOC positions for the authenticated user.
 			</wsdl:documentation>
 			<wsdl:input message="tns:GetUserPositionsSoapIn" />
 			<wsdl:output message="tns:GetUserPositionsSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="GetUsersByPosition">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Get a list of the WebEOC users that belong to specific position.
-				Administrator access required. Raises an exception if the positions
+				Get a list of the
+				WebEOC users that belong to specific position.
+				Administrator access
+				required. Raises an exception if the positions
 				does not exist.
 			</wsdl:documentation>
 			<wsdl:input message="tns:GetUsersByPositionSoapIn" />
@@ -1027,7 +1029,8 @@
 		</wsdl:operation>
 		<wsdl:operation name="GetPositionsForUser">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Get the list of positions that a user can fill. Administrator access
+				Get the list of
+				positions that a user can fill. Administrator access
 				required.
 			</wsdl:documentation>
 			<wsdl:input message="tns:GetPositionsForUserSoapIn" />
@@ -1035,36 +1038,48 @@
 		</wsdl:operation>
 		<wsdl:operation name="AddUser">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Add a user to the database. Administrator access required. An exception
-				will be raised if a user already exists with the same username. If a
-				color value is supplied, an exception will be raised if the value is
-				not a valid color string(6 digit hexadecimal string)
+				Add a user to the
+				database. Administrator access required. An exception
+				will be raised
+				if a user already exists with the same username. If a
+				color value is
+				supplied, an exception will be raised if the value is
+				not a valid
+				color string(6 digit hexadecimal string)
 			</wsdl:documentation>
 			<wsdl:input message="tns:AddUserSoapIn" />
 			<wsdl:output message="tns:AddUserSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="AddUserToPosition">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Add a user to a position assignment. Administrator access required. An
-				exception will be raised if the user or position does not exist
+				Add a user to a
+				position assignment. Administrator access required. An
+				exception will
+				be raised if the user or position does not exist
 			</wsdl:documentation>
 			<wsdl:input message="tns:AddUserToPositionSoapIn" />
 			<wsdl:output message="tns:AddUserToPositionSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="RemoveUserFromPosition">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Remove a user from a position assignment. Administrator access required.
-				An exception will be raised if the user or position does not exist
+				Remove a user from
+				a position assignment. Administrator access required.
+				An exception
+				will be raised if the user or position does not exist
 			</wsdl:documentation>
 			<wsdl:input message="tns:RemoveUserFromPositionSoapIn" />
 			<wsdl:output message="tns:RemoveUserFromPositionSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="DeleteUserIfNoPositions">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Delete a user from WebEOC. Administrator access required. An exception
-				will be raised if the user does not exist or if the user is the same
-				user supplied in the credentials. Returns false if the user was
-				unable to be deleted due to position member. Returns true if the
+				Delete a user from
+				WebEOC. Administrator access required. An exception
+				will be raised if
+				the user does not exist or if the user is the same
+				user supplied in
+				the credentials. Returns false if the user was
+				unable to be deleted
+				due to position member. Returns true if the
 				user was deleted
 			</wsdl:documentation>
 			<wsdl:input message="tns:DeleteUserIfNoPositionsSoapIn" />
@@ -1072,24 +1087,30 @@
 		</wsdl:operation>
 		<wsdl:operation name="DeleteUser">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Delete a user from WebEOC. Administrator access required. An exception
-				will be raised if the user does not exist or if the user is the same
-				user supplied in the credentials or if the user is not deleteable
-				(WebEOC Administrator)
+				Delete a user from
+				WebEOC. Administrator access required. An exception
+				will be raised if
+				the user does not exist or if the user is the same
+				user supplied in
+				the credentials or if the user is not deleteable
+				(WebEOC
+				Administrator)
 			</wsdl:documentation>
 			<wsdl:input message="tns:DeleteUserSoapIn" />
 			<wsdl:output message="tns:DeleteUserSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="GetBoardNames">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Get a list of the WebEOC boards. Administrator access required
+				Get a list of the
+				WebEOC boards. Administrator access required
 			</wsdl:documentation>
 			<wsdl:input message="tns:GetBoardNamesSoapIn" />
 			<wsdl:output message="tns:GetBoardNamesSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="GetInputViews">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Get the list of Input views for a specific board. Administrator access
+				Get the list of
+				Input views for a specific board. Administrator access
 				required
 			</wsdl:documentation>
 			<wsdl:input message="tns:GetInputViewsSoapIn" />
@@ -1097,7 +1118,8 @@
 		</wsdl:operation>
 		<wsdl:operation name="GetDisplayViews">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Get the list of Display views for a specific board. Administrator
+				Get the list of
+				Display views for a specific board. Administrator
 				access required
 			</wsdl:documentation>
 			<wsdl:input message="tns:GetDisplayViewsSoapIn" />
@@ -1105,7 +1127,8 @@
 		</wsdl:operation>
 		<wsdl:operation name="GetViewFields">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Get the list of fields for a particular view. Administrator access
+				Get the list of
+				fields for a particular view. Administrator access
 				required.
 			</wsdl:documentation>
 			<wsdl:input message="tns:GetViewFieldsSoapIn" />
@@ -1113,19 +1136,22 @@
 		</wsdl:operation>
 		<wsdl:operation name="AddData">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Add a new entry to
-				a WebEOC board.</wsdl:documentation>
+				a WebEOC board.
+			</wsdl:documentation>
 			<wsdl:input message="tns:AddDataSoapIn" />
 			<wsdl:output message="tns:AddDataSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="UpdateData">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Update an existing
-				entry in a WebEOC board.</wsdl:documentation>
+				entry in a WebEOC board.
+			</wsdl:documentation>
 			<wsdl:input message="tns:UpdateDataSoapIn" />
 			<wsdl:output message="tns:UpdateDataSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="UpdateDataBatch">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Batch method for adding/updating entires in a WebEOC board.
+				Batch method for
+				adding/updating entires in a WebEOC board.
 			</wsdl:documentation>
 			<wsdl:input message="tns:UpdateDataBatchSoapIn" />
 			<wsdl:output message="tns:UpdateDataBatchSoapOut" />
@@ -1152,7 +1178,8 @@
 		</wsdl:operation>
 		<wsdl:operation name="GetUpdatedData">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Get the board entries that have been added or updated since UpdatedTime
+				Get the board
+				entries that have been added or updated since UpdatedTime
 			</wsdl:documentation>
 			<wsdl:input message="tns:GetUpdatedDataSoapIn" />
 			<wsdl:output message="tns:GetUpdatedDataSoapOut" />
@@ -1171,27 +1198,31 @@
 		</wsdl:operation>
 		<wsdl:operation name="GetIncidents">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Get the list of incidents that a specific user has access to.
+				Get the list of
+				incidents that a specific user has access to.
 			</wsdl:documentation>
 			<wsdl:input message="tns:GetIncidentsSoapIn" />
 			<wsdl:output message="tns:GetIncidentsSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="AddIncident">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Add an incident to
-				WebEOC</wsdl:documentation>
+				WebEOC
+			</wsdl:documentation>
 			<wsdl:input message="tns:AddIncidentSoapIn" />
 			<wsdl:output message="tns:AddIncidentSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="GetLists">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Get a DataTable of lists. Administrator access required
+				Get a DataTable of
+				lists. Administrator access required
 			</wsdl:documentation>
 			<wsdl:input message="tns:GetListsSoapIn" />
 			<wsdl:output message="tns:GetListsSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="GetListItems">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Get a DataTable of items in a WebEOC list. Administrator access
+				Get a DataTable of
+				items in a WebEOC list. Administrator access
 				required
 			</wsdl:documentation>
 			<wsdl:input message="tns:GetListItemsSoapIn" />
@@ -1199,35 +1230,41 @@
 		</wsdl:operation>
 		<wsdl:operation name="GetListItemsByListName">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Get a DataTable of items in a WebEOC list that a specific user has
-				access to. Administrator access required
+				Get a DataTable of
+				items in a WebEOC list that a specific user has
+				access to.
+				Administrator access required
 			</wsdl:documentation>
 			<wsdl:input message="tns:GetListItemsByListNameSoapIn" />
 			<wsdl:output message="tns:GetListItemsByListNameSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="SaveList">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Save a WebEOC list.
-				Administrator access required</wsdl:documentation>
+				Administrator access required
+			</wsdl:documentation>
 			<wsdl:input message="tns:SaveListSoapIn" />
 			<wsdl:output message="tns:SaveListSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="DeleteList">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Delete a WebEOC list. Administrator access required
+				Delete a WebEOC
+				list. Administrator access required
 			</wsdl:documentation>
 			<wsdl:input message="tns:DeleteListSoapIn" />
 			<wsdl:output message="tns:DeleteListSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="SaveListItem">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Save a WebEOC list item. Administrator access required
+				Save a WebEOC list
+				item. Administrator access required
 			</wsdl:documentation>
 			<wsdl:input message="tns:SaveListItemSoapIn" />
 			<wsdl:output message="tns:SaveListItemSoapOut" />
 		</wsdl:operation>
 		<wsdl:operation name="DeleteListItem">
 			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-				Delete a WebEOC list item. Administrator access required
+				Delete a WebEOC
+				list item. Administrator access required
 			</wsdl:documentation>
 			<wsdl:input message="tns:DeleteListItemSoapIn" />
 			<wsdl:output message="tns:DeleteListItemSoapOut" />
