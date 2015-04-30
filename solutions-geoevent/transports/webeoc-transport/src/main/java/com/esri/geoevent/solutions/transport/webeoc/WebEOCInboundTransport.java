@@ -155,8 +155,8 @@ public class WebEOCInboundTransport extends InboundTransportBase implements
 			}
 			credentials.setIncident(incident);
 			String ping = apiSoap.ping(credentials);
-			credentials.setJurisdiction("Boston");
-			ArrayOfString boardArray = apiSoap.getBoardNames(credentials);
+			credentials.setJurisdiction("SEOC");
+			/*ArrayOfString boardArray = apiSoap.getBoardNames(credentials);
 			List<String> boards = boardArray.getString();
 			if (!boards.contains(board)) {
 				ValidationException e = new ValidationException(
@@ -173,7 +173,7 @@ public class WebEOCInboundTransport extends InboundTransportBase implements
 								+ username);
 				LOG.error(e.getMessage());
 				throw (e);
-			}
+			}*/
 		} catch (Exception e) {
 			LOG.error(e.getMessage());
 			ValidationException ve = new ValidationException(
@@ -218,9 +218,9 @@ public class WebEOCInboundTransport extends InboundTransportBase implements
 						greg.setTimeInMillis(lastTime);
 						XMLGregorianCalendar c = DatatypeFactory.newInstance()
 								.newXMLGregorianCalendar(greg);
-
-						results = apiSoap.getUpdatedData(credentials, board,
-								view, c);
+						results = apiSoap.getData(credentials, board, view);
+						//results = apiSoap.getUpdatedData(credentials, board,
+								//view, c);
 						if (results != null) {
 							byte[] byteArray = results.getBytes();
 							receive(byteArray);
