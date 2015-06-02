@@ -16,21 +16,20 @@
 		<junit.version>4.8.1</junit.version>
 		<jackson.version>1.9.5</jackson.version>
 	</properties>
-<repositories>
-	<repository>
-		<id>ages-sdk-repo</id>
-		<name>GeoEvent Processor SDK repository</name>
-		<url>file:///geoevent-10.3.0.4320/geoevent-10.3.0/sdk/repository</url>
-	</repository>
-	<repository>
-		<id>GEP</id>
-		<name>GeoEvent Processor embedded repository</name>
-		<layout>default</layout>
-		<url>file:///geoevent-10.3.0.4220/geoevent-10.3.0/system</url>
-	</repository>
-	
 
-	</repositories>	
+	<repositories>
+		<repository>
+			<id>ages-sdk-repo</id>
+			<name>GeoEvent Processor SDK repository</name>
+			<url>file:///Program Files/ArcGIS/Server/GeoEvent/sdk/repository</url>
+		</repository>
+		<repository>
+			<id>GEP</id>
+			<name>GeoEvent Processor embedded repository</name>
+			<layout>default</layout>
+			<url>file:///Program Files/ArcGIS/Server/GeoEvent/System</url>
+		</repository>
+	</repositories>
 
 
   <dependencyManagement>
