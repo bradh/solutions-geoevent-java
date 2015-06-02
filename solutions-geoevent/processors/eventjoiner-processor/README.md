@@ -1,13 +1,9 @@
 # Event Joiner Processor
 
-<DESCRIPTION>  
+The Event Joiner Processor joins 2 or more GeoEvents with different GeoEvent Definitions based on a common attribute. Events are generated on a first come first serve basis. The processor caches incoming events until one event from each incoming event definition is received. Attributes with identical names will be grouped in the geoevent output with the exception of the join field which will be made into the trackid of the output event.
 
-![Image of Event Joiner Processor]<PROCESSOR_PICTURE_NAME>.PNG
+![Image of Event Joiner Processor](eventjoiner.png)
 
-## Features 
-
-
-* Event Joiner Processor - <DESCRIPTION>
 
 
 ## Sections
@@ -20,12 +16,12 @@
 
 ## Requirements
 
-* See common [solutions-geoevent-java requirements](../../../../README.md#requirements).
+* See common [solutions-geoevent-java requirements](../../../README.md#requirements).
 * The ArcGIS Runtime for Java SDK is required in order to run the standalone Maven Tests included with this project.
 
 ## Building 
 
-* See the [solutions-geoevent-java instructions](../../../../README.md#instructions) for general instructions on 
+* See the [solutions-geoevent-java instructions](../../../README.md#instructions) for general instructions on 
     * verifying your Maven installation
     * setting the location of GeoEvent Processor and GeoEvent Processor SDK repositories
     * and any other common required steps
@@ -48,74 +44,51 @@
 
 ### Testing with Simulated Test Data
 
-* In the following steps you will configure GeoEvent Processor to receive and process simulated data.
-* The following example configures the Event Joiner Processor, the other processors can be configured in a similar manner.
+#### Deploying the Test Configuration
 
-* Open GeoEvent Processor Manager.
-* Create a new GeoEvent definition 
-   * Go to Site > GeoEvent > GeoEvent Definitions
-   * Click 'New GeoEvent Definition'
-   * In the the New Geoevent Definition dialog configure similar to the follwing illustration
+If you have already deployed the test configuration you may move on to Testing the Component
 
-![Image of Add New Input](doc/add-new-def.png)
+In GeoEvent Extension Manager 
 
-in the GeoEvent Definition Name textbox and click 'Create'
-   * Configure the fields as in the image below (this will ensure that the sample simulation data can be consumed in the test service).
-   
-![Image of geoevent definition](doc/geoeventdefinition.png)
+* Go to the Site >> Configuration Store Tab. 
+* Click the 'Import Configuration' button. 
+* Select 'Choose File'
+* Browse to the ./solutions-geoevent-java/data/configurations/ directory 
+* Select the SolutionsComponentTestConfig.xml 
+* Click 'Open' in the dialog. 
+* Click 'Next'. 
+* When prompted choose 'Import Configuration'. 
 
-* Create an Input Service to accept text over tcp messages
-   * In GeoEvent Manager go to Services->Input and click Add Input
-   * In the Input Connectors Window choose 'Receive text from a TCP socket'
-   * Configure the service similar to the picture below.
-
-![Image of Input Service](doc/input-service.png)
-
-*Create a second input service
-    * The second service should be configured as follows
-
-![Image of Input Service](doc/input-service2.png)
-    *(TIP: use the copy service button next to the first service you created and modify only those properties as necessary.)
-* Next, create an Output Connector to observe the received data.
-    * Navigate ‘Services’ > 'Outputs'.
-    * Select Add Output and select 'Write to a json file' and configure the properties using the image below as a guide.
-    
-![Image of Output Service](doc/tests-json-output.png)
-
-   * If you do not have a registered folder already to write json files to, click the 'Register Folder' button and give the folder a name and point it to an existing folder on your file system. In the example the name is test_components_out and the path is C:\gep\registered\tests.  
-   * Click 'Save' when you are finished.
-* Create a simple GeoEvent Service to direct the input data to the output using the selected processor.
-   * Go to Services > GeoEvent Services and click 'Add Service'
-   * In the Add New Service dialog enter a name and description similar to the following
-
-![Image Add New Service](doc/add-geoevent-service.png)
-
-   * On the left panel click and drag the input service you created previously and tests-json-output services into the service constructor window.
-   * Next click and drag a Processor into the service constructor window.
-   * Configure the processor similar to the illustration below.
-   
-![Image of processor](doc/configure.png)
-
-   * Connect the components of the service as illustrated below.
-
-![Image of service](doc/test-service.png)
-
-* When finished click the 'Publish' button to save the service.
+The test service configuration will be deployed to your instance of GeoEvent.
 
 
 
-* In GeoEvent Processor Manager, navigate to ‘Services’ > ‘Monitor’ and observe the GeoEvent Processor components. You should see the newly created service and it should have a status of 'Started'.
+#### Testing the Component
 
-* Using the GeoEvent Simulator, load the simulation file located at  solutions-geoevent-java\data\simulation_files\eventjoiner.csv
-* Set the listening server to your geoevent server instance (local host if the simulator is on the same machine as geoevent server)
-* Set the port to the same value as you set the input services port and click the connect button
-* Click the 'Play' button to run the simulation
-* In GeoEvent Processor Manager, navigate to 'Services' > 'Monitor' to observe that the values are increasing and the selected outputs are updated. 
-* Next go to Services > Output and find the tests-json-out service you created previosly
-* Click the Stop button to stop the service
-* In a file browser go to the folder where your tests-json-output is located.
-* Open the tests_<timestamp>.json file with the most recent timestamp.
-* You can now test the processors with additional outputs such as published feature services.
+The Introduction to GeoEvent tutorial has a simple TCP-Console application that will be used for most of the tests. It can be found [here](http://www.arcgis.com/home/item.html?id=b6a35042effd44ceab3976941d36efcf).
+
+You will use the EventJoiner-Test service from the Solutions Test Configuration to test the functionality of the Event Joiner Processor.
+* Open the EventJoiner-Test service in GEE Manager. 
+* Click on the eventjoiner1-tcp-txt-in Input and expand the 'Advanced' tab. Note that the input uses TCP port 5603.
+* Click on the eventjoiner2-tcp-txt-in Input and expand the 'Advanced' tab. Note that the input uses TCP port 5604.
+* Open 2 instances of the ArcGIS GeoEvent Simulator (this is installed with GeoEvent Extension and can be found at the GeoEvent Extension install location).
+* Make sure the Server points to the server on which GeoEvent Extension is deployed (default is local host).
+* In the upper right, change the port to 5603 and  click the button with the red X to connect (Note: if you cannot connect the server is not listening on that port. This may be because the Input in GeoEvent extension has not been started).
+* Make sure 'File' is selected in the combo box on the upper left.
+* Click the 'Load File' button in the upper right.
+* In the new dialog, click the file folder button in the upper right.
+* Browse to the ./solutions-geoevent-java/data/simulation-files/ directory.
+* Select eventjoiner1.csv and click 'Open'
+* Click the 'Load' button. In the Preview Edits window you will see 1 record.
+* Repeat these steps in the other simulator substituting 6304 in the port and the eventjoiner2.csv for the simulation file.
+* Browse to the directory of the TCP-Console application (if you downloaded it from the tutorial it will be at ./IntroductionToGeoEvent/utilities/tcp-server-app).
+* Double click TCPServerApp.bat (the application will not start if no services are listening on port 5570 - if you have deployed the test configuration an output service has been configured to listen on this port. Check that the Output tcp-out-5570 has been deployed and started).
+* In 1st GeoEvent Simulator click the 'Step' button.
+* In 2nd GeoEvent Simulator click the 'Step' button.
+* In the TCP-console you will see that the Received Event (Event Definition name) is join-events with a comma separated list of values. Note that the url values are represented in brackets indicating a joined attribute.
+* Try stepping the 1st simulator multiple times. Note that no event is produced in the console.
+* Next step the 2nd simulator. Notice that the console outputs an event, demonstrating the cacheing behavior. Step an equal number of times in the 2nd simulator as in the first simulator in the previous step. Note that an event is created for each.
+
 
 ## Licensing
 

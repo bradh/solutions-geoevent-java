@@ -72,7 +72,7 @@ chemlight | To create chemlights reports
 ### Testing with Live Data
 
 * Download and build an application that can send simulated GeoMessages over UDP.
-    * A sample UDP GeoMessage simulation application is available with the [Vehicle Commander repository](https://github.com/Esri/vehicle-commander/tree/master/source/MessageSimulator).
+    * A sample UDP GeoMessage simulation application is available with the [GeoMessage Simulator (QT)](https://github.com/Esri/geomessage-simulator-qt).
     * A pre-built version of this project is included [here](../../../data/utilities/UDPGeoMessageSimulator).
     * A sample simulation file, SimpleGeoMessage.xml, is provided [here](../../../data/simulation_files).
 * In the following steps you will configure GeoEvent Processor to receive and process simulated GeoMessage data.

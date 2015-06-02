@@ -2,7 +2,7 @@
 
 The esd adapter provides an example of how to ingest Exploitation Support Data (ESD) messages as geoevents.
 
-![Image of geomessage-adapter](UAVPredatorDrone.JPG)
+![Image of geomessage-adapter](esd_390X150.png)
 
 ## Features
 
@@ -19,12 +19,12 @@ The esd adapter provides an example of how to ingest Exploitation Support Data (
 
 ## Requirements
 
-* See common [solutions-geoevent-java requirements](../../../../README.md#requirements)
+* See common [solutions-geoevent-java requirements](../../../README.md#requirements)
 * There are no additional requirements for this project
 
 ## Building 
 
-* See the [solutions-geoevent-java instructions](../../../../README.md#instructions) for general instructions on 
+* See the [solutions-geoevent-java instructions](../../../README.md#instructions) for general instructions on 
     * verifying your Maven installation
     * setting the location of the GEP Server and GEP SDK repositories
     * and any other common required steps
@@ -41,7 +41,7 @@ The esd adapter provides an example of how to ingest Exploitation Support Data (
 
 ### Validating the Installation
  
-* See the [solutions-geoevent-java validation instructions](../../../../README.md#validating-install).
+* See the [solutions-geoevent-java validation instructions](../../../README.md#validating-install).
 
 ### Testing with Simulated Test Data
 

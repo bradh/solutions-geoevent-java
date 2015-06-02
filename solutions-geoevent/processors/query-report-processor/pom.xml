@@ -84,11 +84,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.esri.arcgis.discovery</groupId>
-			<artifactId>arcgis-ejb</artifactId>
-			<version>10.3.0.4160</version>
-		</dependency>
-		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 		</dependency>

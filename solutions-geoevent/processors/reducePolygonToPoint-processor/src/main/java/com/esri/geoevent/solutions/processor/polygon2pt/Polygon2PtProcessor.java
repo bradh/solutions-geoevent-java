@@ -28,6 +28,7 @@ import com.esri.core.geometry.Envelope;
 import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.MapGeometry;
 import com.esri.core.geometry.Point;
+import com.esri.core.geometry.Polygon;
 import com.esri.ges.core.component.ComponentException;
 import com.esri.ges.core.geoevent.GeoEvent;
 import com.esri.ges.core.validation.ValidationException;
@@ -64,9 +65,7 @@ public class Polygon2PtProcessor extends GeoEventProcessorBase {
 		Geometry geo = mapGeo.getGeometry();
 		if(geo.getType()!=Geometry.Type.Polygon)
 			return null;
-		Envelope bb = new Envelope();
-		geo.queryEnvelope(bb);
-		Point center = bb.getCenter();
+		Point center = GeometryUtility.CenterOfMass((Polygon)geo);
 		MapGeometry outMapGeo = new MapGeometry(center, mapGeo.getSpatialReference());
 		ge.setGeometry(outMapGeo);
 		return ge;

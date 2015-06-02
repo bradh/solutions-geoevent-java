@@ -4,7 +4,7 @@
 
   <groupId>com.esri.geoevent</groupId>
   <artifactId>defense</artifactId>
-  <version>10.3.0</version>
+  <version>10.3.1</version>
   <packaging>pom</packaging>
 
   <name>Esri :: AGES :: Solutions</name>
@@ -23,7 +23,7 @@
 		<module>processors/buffer-processor</module>
 		<module>processors/ellipse-processor</module>
 		<module>processors/eventVolumeControl-processor</module>
-		<module>processors/fieldgrouper-processor</module>
+		<module>processors/eventjoiner-processor</module>
 		<module>processors/query-report-processor</module>
 		<module>processors/rangefan-processor</module>
 		<module>processors/symbol-lookup-processor</module>

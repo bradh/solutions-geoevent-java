@@ -25,11 +25,15 @@ package com.esri.geoevent.solutions.processor.polygon2pt;
 
 import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.Point;
+import com.esri.core.geometry.Point2D;
 import com.esri.core.geometry.Polygon;
+import com.esri.ges.framework.i18n.BundleLogger;
+import com.esri.ges.framework.i18n.BundleLoggerFactory;
 
 
 public class GeometryUtility {
-
+	private static final BundleLogger LOGGER = BundleLoggerFactory
+			.getLogger(GeometryUtility.class);
 	public GeometryUtility() {}
 	
 	public static double Geo2Arithmetic(double inAngle)
@@ -120,6 +124,42 @@ public class GeometryUtility {
 		double ey = y + Math.copySign(rv * tt * d, s);
 		return new Point(ex,ey);
 		
+	}
+	
+	public static Point CenterOfMass(Polygon p)
+	{
+		return _centerOfMass(p);
+	}
+	
+	private static Point _centerOfMass(Polygon p)
+	{
+		try
+		{
+			Double cx = 0.0;
+			Double cy = 0.0;
+			double a = p.calculateArea2D();
+			Point2D[] points = p.getCoordinates2D();
+			int i, j, n=p.getPointCount();
+			Double factor = 0.0;
+			for(i=0; i<n; i++)
+			{
+				j=(i+1)%n;
+				factor = (points[j].x * points[i].y - points[i].x*points[j].y);
+				cx += (points[i].x + points[j].x)*factor;
+				cy += (points[i].y + points[j].y)*factor;
+			}
+			a*=6.0f;
+			factor = 1/a;
+			cx *=factor;
+			cy*=factor;
+			Point pt = new Point (cx, cy);
+			return pt;
+		}
+		catch(Exception e)
+		{
+			LOGGER.error(e.getMessage());
+			return null;
+		}
 	}
 
 }
