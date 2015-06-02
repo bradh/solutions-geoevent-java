@@ -20,10 +20,13 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.esri.core.geometry.Geometry;
+import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.MapGeometry;
 import com.esri.core.geometry.Point;
 import com.esri.ges.adapter.AdapterDefinition;
@@ -34,118 +37,143 @@ import com.esri.ges.core.geoevent.FieldType;
 import com.esri.ges.core.geoevent.GeoEvent;
 import com.esri.ges.core.geoevent.GeoEventDefinition;
 
+public class DefenseOutboundAdapter extends OutboundAdapterBase {
+	private static final Log LOG = LogFactory
+			.getLog(DefenseOutboundAdapter.class);
 
-public class DefenseOutboundAdapter extends OutboundAdapterBase
-{
-  private static final Log LOG = LogFactory.getLog(DefenseOutboundAdapter.class);
-  private StringBuffer stringBuffer = new StringBuffer(10*1024);
-  private ByteBuffer byteBuffer = ByteBuffer.allocate(10*1024);
-  private Charset charset = Charset.forName("UTF-8");
-  private String dateFormat = "yyyy-MM-dd HH:mm:ss";
-  private SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
+	private Charset charset = Charset.forName("UTF-8");
+	private String dateFormat = "yyyy-MM-dd HH:mm:ss";
+	private SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
+	private String messageType;
 
-  public DefenseOutboundAdapter(AdapterDefinition definition) throws ComponentException
-  {
-    super(definition);
-  }
+	public DefenseOutboundAdapter(AdapterDefinition definition)
+			throws ComponentException {
+		super(definition);
+	}
 
-  @SuppressWarnings("incomplete-switch")
-  @Override
-  public void receive(GeoEvent geoEvent)
-  {
-    Integer wkid = -1;
-    stringBuffer.setLength(0);
-    stringBuffer.append("<geomessages>");
-    stringBuffer.append("<geomessage>");
-    GeoEventDefinition definition = geoEvent.getGeoEventDefinition();
-    for (FieldDefinition fieldDefinition : definition.getFieldDefinitions())
-    {
-      String attributeName = fieldDefinition.getName();
-      Object value = geoEvent.getField(attributeName);
-      stringBuffer.append("<" + attributeName + ">");
-      FieldType t = fieldDefinition.getType();
-      switch (t)
-      {
-        case String:
-          stringBuffer.append((String) value);
-          break;
-        case Date:
-          Date date = (Date) value;
-          stringBuffer.append(formatter.format(date));
-          break;
-        case Double:
-          Double doubleValue = (Double) value;
-          stringBuffer.append(doubleValue);
-          break;
-        case Float:
-          Float floatValue = (Float) value;
-          stringBuffer.append(floatValue);
-          break;
-        case Geometry:
-          if (definition.getIndexOf(attributeName) == definition.getIndexOf("GEOMETRY"))
-          {
-            MapGeometry geom = geoEvent.getGeometry();
-            if (geom.getGeometry().getType() == com.esri.core.geometry.Geometry.Type.Point)
-            {
-              Point p = (Point) geom.getGeometry();
-              stringBuffer.append(p.getX());
-              stringBuffer.append(",");
-              stringBuffer.append(p.getY());
-              wkid = (Integer)geom.getSpatialReference().getID();
-              
-            }
-          }
-          else
-          {
-            LOG.error("unable to parse the value for the secondary geometry field \"" + attributeName + "\"");
-          }
-          break;
-        case Integer:
-          Integer intValue = (Integer) value;
-          stringBuffer.append(intValue);
-          break;
-        case Long:
-          Long longValue = (Long) value;
-          stringBuffer.append(longValue);
-          break;
-        case Short:
-          Short shortValue = (Short) value;
-          stringBuffer.append(shortValue);
-          break;
-        case Boolean:
-          Boolean booleanValue = (Boolean) value;
-          stringBuffer.append(booleanValue);
-          break;
+	@SuppressWarnings("incomplete-switch")
+	@Override
+	public synchronized void receive(GeoEvent geoEvent) {
 
-      }
-      stringBuffer.append("</" + attributeName + ">");
-      if (wkid > 0)
-      {
-        String wkidValue = wkid.toString();
-        wkid = null;
-        stringBuffer.append("<_wkid>");
-        stringBuffer.append(wkidValue);
-        stringBuffer.append("</_wkid>");
-      }
-    }
-    stringBuffer.append("</geomessage>");
-    stringBuffer.append("</geomessages>");
-    stringBuffer.append("\r\n");
+		ByteBuffer byteBuffer = ByteBuffer.allocate(10 * 1024);
+		Integer wkid = -1;
+		String message = "";
 
-    ByteBuffer buf = charset.encode(stringBuffer.toString());
-    if (buf.position() > 0)
-      buf.flip();
+		message += "<geomessage v=\"1.0\">\n\r";
+		message += "<_type>";
+		message += messageType;
+		message += "</_type>\n\r";
+		message += "<_action>";
+		message += "update";
+		message += "</_action>\n\r";
+		String messageid = UUID.randomUUID().toString();
+		message += "<_id>";
+		message += "{" + messageid + "}";
+		message += "</_id>\n\r";
+		MapGeometry geom = geoEvent.getGeometry();
+		if (geom.getGeometry().getType() == com.esri.core.geometry.Geometry.Type.Point) {
+			Point p = (Point) geom.getGeometry();
+			message += "<_control_points>";
+			message += ((Double) p.getX()).toString();
+			message += ",";
+			message += ((Double) p.getY()).toString();
+			message += "</_control_points>\n\r";
+			wkid = ((Integer) geom.getSpatialReference().getID());
+		}
 
-    try
-    {
-      byteBuffer.put(buf);
-    }
-    catch (BufferOverflowException ex)
-    {
-      LOG.error("Csv Outbound Adapter does not have enough room in the buffer to hold the outgoing data.  Either the receiving transport object is too slow to process the data, or the data message is too big.");
-    }
-    byteBuffer.flip();
-    super.receive(byteBuffer, geoEvent.getTrackId(), geoEvent);
-    byteBuffer.clear();
-  }
+		if (wkid > 0) {
+			String wkidValue = wkid.toString();
+			message += "<_wkid>";
+			message += wkidValue.toString();
+			message += "</_wkid>\n\r";
+		}
+		GeoEventDefinition definition = geoEvent.getGeoEventDefinition();
+		for (FieldDefinition fieldDefinition : definition.getFieldDefinitions()) {
+
+			String attributeName = fieldDefinition.getName();
+			Object value = geoEvent.getField(attributeName);
+
+			if (value == null || value.equals("null")) {
+				continue;
+			}
+			FieldType t = fieldDefinition.getType();
+			if (t != FieldType.Geometry) {
+				message += "<" + attributeName + ">";
+
+				switch (t) {
+				case String:
+					// if(((String)value).isEmpty())
+					// continue;
+					message += value;
+					break;
+				case Date:
+					Date date = (Date) value;
+					message += (formatter.format(date));
+					break;
+				case Double:
+					Double doubleValue = (Double) value;
+					message += doubleValue.toString();
+					break;
+				case Float:
+					Float floatValue = (Float) value;
+					message += floatValue.toString();
+					break;
+				
+				case Integer:
+					Integer intValue = (Integer) value;
+					message += intValue.toString();
+					break;
+				case Long:
+					Long longValue = (Long) value;
+					message += longValue.toString();
+					break;
+				case Short:
+					Short shortValue = (Short) value;
+					message += shortValue.toString();
+					break;
+				case Boolean:
+					Boolean booleanValue = (Boolean) value;
+					message += booleanValue.toString();
+					break;
+
+				}
+				message += "</" + attributeName + ">\n\r";
+			}
+			else
+			{
+				if (definition.getIndexOf(attributeName) == definition
+						.getIndexOf("GEOMETRY")) {
+					continue;
+				} else {
+					String json = GeometryEngine.geometryToJson(wkid, (Geometry)value);
+					message += "<" + attributeName + ">";
+					message += json;
+					message += "</" + attributeName + ">\n\r";
+				}
+				break;
+			}
+
+		}
+		message += "</geomessage>";
+		// stringBuffer.append("</geomessages>");
+		message += "\r\n";
+
+		ByteBuffer buf = charset.encode(message);
+		if (buf.position() > 0)
+			buf.flip();
+
+		try {
+			byteBuffer.put(buf);
+		} catch (BufferOverflowException ex) {
+			LOG.error("Csv Outbound Adapter does not have enough room in the buffer to hold the outgoing data.  Either the receiving transport object is too slow to process the data, or the data message is too big.");
+		}
+		byteBuffer.flip();
+		super.receive(byteBuffer, geoEvent.getTrackId(), geoEvent);
+		byteBuffer.clear();
+	}
+
+	@Override
+	public void afterPropertiesSet() {
+		messageType = properties.get("messagetype").getValueAsString();
+	}
 }

@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import com.esri.geoevent.solutions.processor.symbollookup.SymbolLookup;
 
-import com.esri.runtime.ArcGISRuntime;
 
 public class SymbolLookupTest {
 

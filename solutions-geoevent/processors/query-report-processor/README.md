@@ -1,13 +1,8 @@
-# Geometry Processors
+# Query Report Processor
 
-The Geometry Processors demonstrate how to extend GeoEvent Processor to build custom processors that perform actions and processing on the geometries of a GeoEvent Service.  
 
-![Image of geomessage-adapter](doc/report.png)
-
-## Features 
-
-* Query Report Processor - Executes a spatial query on feature services registered in GeoEvent Processor's data store.  The author of the service can then configures a report based on returned features.
-
+Query Report Processor - Executes a spatial query on feature services registered in GeoEvent Processor's data store.  The author of the service can then configures a report based on returned features.
+![Image of qr processor](qr_390X150.png)
 ## Sections
 
 * [Requirements](#requirements)
@@ -40,95 +35,59 @@ The Geometry Processors demonstrate how to extend GeoEvent Processor to build cu
 
 ### Validating the Installation
  
-* See the [solutions-geoevent-java validation instructions](../../../../README.md#validating-install).
-    * Ensure the Buffer, Ellipse, Range Fan, Visibility, Query Report, etc. processors exist.
+* See the [solutions-geoevent-java validation instructions](../../../README.md#validating-install).
+    * Ensure the Query Report Processor exists.
 
 ### Testing with Simulated Test Data
-In order to use the Query Report Processor some prerequisite steps are required.  The Query Report Processor executes a spatial query on a feature service on an [ArcGIS Server instance registered with the GeoEvent extension.](http://resources.arcgis.com/en/help/main/10.2/#/Managing_data_stores/0154000006m2000000/)  In the following steps you will create a Refugee Camps feature service that will be queried by the processor.
-* Browse to `solutions-geoevent-java/data/packages` and find the refugee_camps.mpk map package.
-* Double click the map package to open in ArcMap.
-* The map package will pull the features into a local file geodatabase.  To publish the features in a feature service the feature class must be in an sde geodatabase.  Use the export features tool to export the features into an sde geodatabase.
-* Next modify the paths to the feature data of the refugee camps to point to the sde feature class you just created.
-* Click save to save changes in the map document.
-* Next follow the instructions (here) to publish the refugee camps map document as a feature service.
 
-* In the following steps you will configure GeoEvent Processor to receive and process simulated data.
-* The following example configures the <PROCESSORNAME>, the other processors can be configured in a similar manner.
+#### Deploying the Test Configuration
 
-* Open GeoEvent Processor Manager.
-* Create a new GeoEvent definition 
-   * Go to Site > GeoEvent > GeoEvent Definitions
-   * Click 'New GeoEvent Definition'
-   * In the the New Geoevent Definition dialog configure similar to the follwing illustration
+If you have already deployed the test configuration you may move on to Testing the Component
 
-![Image of Add New Input](doc/add-new-def.png)
+In GeoEvent Extension Manager 
 
-in the GeoEvent Definition Name textbox and click 'Create'
-   * Configure the fields as in the image below (this will ensure that the sample simulation data can be consumed in the test service).
-   
-![Image of geoevent definition](doc/geoeventdefinition.png)
+* Go to the Site >> Configuration Store Tab. 
+* Click the 'Import Configuration' button. 
+* Select 'Choose File'
+* Browse to the ./solutions-geoevent-java/data/configurations/ directory 
+* Select the SolutionsComponentTestConfig.xml 
+* Click 'Open' in the dialog. 
+* Click 'Next'. 
+* When prompted choose 'Import Configuration'. 
 
-* Create an Input Service to accept text over tcp messages
-   * In GeoEvent Manager go to Services->Input and click Add Input
-   * In the Input Connectors Window choose 'Receive text from a TCP socket'
-   * Configure the service similar to the picture below.
+The test service configuration will be deployed to your instance of GeoEvent.
 
-![Image of Input Service](doc/input-service.png)
+#### Testing the Component
 
-* Next, create an Output Connector to observe the received data.
-    * Navigate ‘Services’ > 'Outputs'.
-    * Select Add Output and select 'Write to a json file' and configure the properties using the image below as a guide.
-    
-![Image of Output Service](doc/tests-json-output.png)
+The Introduction to GeoEvent tutorial has a simple TCP-Console application that will be used for most of the tests. It can be found [here](http://www.arcgis.com/home/item.html?id=b6a35042effd44ceab3976941d36efcf).
 
-   * If you do not have a registered folder already to write json files to, click the 'Register Folder' button and give the folder a name and point it to an existing folder on your file system. In the example the name is test_components_out and the path is C:\gep\registered\tests.  
-   * Click 'Save' when you are finished.
-* Create a simple GeoEvent Service to direct the input data to the output using the selected processor.
-   * Go to Services > GeoEvent Services and click 'Add Service'
-   * In the Add New Service dialog enter a name and description similar to the following
+#### Configuring the Query Report Processor
 
-![Image Add New Service](doc/add-geoevent-service.png)
-
-   * On the left panel click and drag the input service you created previously and tests-json-output services into the service constructor window.
-   * Next click and drag a Processor into the service constructor window.
-   * Use the following illustration as a guide to the configurable properties supported in the Query Report Processor
+Use the following illustration as a guide to the configurable properties supported in the Query Report Processor
 
 ![Image Properties](doc/properties.png)
 
-   * Configure the processor similar to the illustration below.
-   
-![Image of processor](doc/configure.png)
-   
-   *The Query Report Processor uses tokens as place holders that are replaced with feature data extracted from the query response, values from the geoevent, a timesamp optionally generated by the processor and/or a distance calculated between the event geometry and each returned feature. Use the following illustration as a guide to the supported format of tokens.
-
+ The Query Report Processor uses tokens as place holders that are replaced with feature data extracted from the query response, values from the geoevent, a timesamp optionally generated by the processor and/or a distance calculated between the event geometry and each returned feature. Use the following illustration as a guide to the supported format of tokens.
 
 ![Image of token format](doc/token-format.png)
 
-
-   * Connect the components of the service as illustrated below.
-
-![Image of service](doc/test-service.png)
-
-* When finished click the 'Publish' button to save the service.
-
-
-
-* In GeoEvent Processor Manager, navigate to ‘Services’ > ‘Monitor’ and observe the GeoEvent Processor components. You should see the newly created service and it should have a status of 'Started'.
-
-* Using the GeoEvent Simulator, load the simulation file located at  solutions-geoevent-java\data\simulation_files\<SIMULATION>.csv
-* Set the listening server to your geoevent server instance (local host if the simulator is on the same machine as geoevent server)
-* Set the port to the same value as you set the input services port and click the connect button
-* Click the 'Play' button to run the simulation
-* In GeoEvent Processor Manager, navigate to 'Services' > 'Monitor' to observe that the values are increasing and the selected outputs are updated. 
-* Next go to Services > Output and find the tests-json-out service you created previosly
-* Click the Stop button to stop the service
-* In a file browser go to the folder where your tests-json-output is located.
-* Open the tests_<timestamp>.json file with the most recent timestamp.
-* You should see a url field that has been attached to the output geoevent.  This url is an http page uploaded to the local geoevent web server.  Copy and paste this url into a browser. You should see a report similar to the following.
-
-![Image of service](doc/report.png)
-
-* You can now test the processors with additional outputs such as published feature services.
+You will use the QueryReport-Test service from the Solutions Test Configuration to test the functionality of the Query Report Processor.
+* This simulation requires the refugee_camps service be published to your default datastore. Make adjustments as needed to query another service or if the refugee_cams service is published to a different ArcGIS Server instance. A map package containing the layers for this service can be found [here](../../../../../blob/master/data/packages/refugee_camps.mpk?raw=true)
+* Open the QueryReport-Test service in GEE Manager. 
+* Click on the query-report-tcp-txt-in Input and expand the 'Advanced' tab. Note that the input uses TCP port 5605.
+* Open the ArcGIS GeoEvent Simulator (this is installed with GeoEvent Extension and can be found at the GeoEvent Extension install location).
+* Make sure the Server points to the server on which GeoEvent Extension is deployed (default is local host).
+* In the upper right, change the port to 5605 and  click the button with the red X to connect (Note: if you cannot connect the server is not listening on that port. This may be because the Input in GeoEvent extension has not been started).
+* Make sure 'File' is selected in the combo box on the upper left.
+* Click the 'Load File' button in the upper right.
+* In the new dialog, click the file folder button in the upper right.
+* Browse to the ./solutions-geoevent-java/data/simulation-files/ directory.
+* Select queryreport.csv and click 'Open' (note the same simulation file is used for both query report processoer and spatial query processor).
+* Click the 'Load' button. In the Preview Edits window you will see 1 record.
+* Browse to the directory of the TCP-Console application (if you downloaded it from the tutorial it will be at ./IntroductionToGeoEvent/utilities/tcp-server-app).
+* Double click TCPServerApp.bat (the application will not start if no services are listening on port 5570 - if you have deployed the test configuration an output service has been configured to listen on this port. Check that the Output tcp-out-5570 has been deployed and started).
+* In the GeoEvent Simulator click the 'Step' button.
+* In the TCP-console you will see that the Received Event (Event Definition name) is QueryReportTest with a comma separated list of values. A url will be one of the attributes. This url represents the location of the generated report. Browse to this location to see a configured report.
 
 
 ## Licensing

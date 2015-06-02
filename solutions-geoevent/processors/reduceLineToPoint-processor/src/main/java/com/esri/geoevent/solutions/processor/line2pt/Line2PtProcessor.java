@@ -66,7 +66,6 @@ public class Line2PtProcessor extends GeoEventProcessorBase {
 	private List<FieldDefinition> fds;
 	private Boolean createDef = false;
 	private GeoEventDefinition ged;
-	private GeoEventCreator geoEventCreator;
 	private GeoEventDefinitionManager manager;
 	private Messaging messaging;
 	private static final BundleLogger LOGGER = BundleLoggerFactory
@@ -144,7 +143,7 @@ public class Line2PtProcessor extends GeoEventProcessorBase {
 		else if(pointType.equals("mid"))
 		{
 			outGeo = getMiddlePoint(mapGeo);
-			long midTime = timeStart.getTime() + (timeEnd.getTime() - timeStart.getTime());
+			long midTime = timeStart.getTime() + ((timeEnd.getTime() - timeStart.getTime())/2);
 			ts = new Date(midTime);
 		}
 		MapGeometry outMapGeo = new MapGeometry(outGeo, mapGeo.getSpatialReference());
