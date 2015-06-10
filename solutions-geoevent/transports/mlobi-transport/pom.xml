@@ -4,7 +4,7 @@
   <groupId>com.esri.geoevent.solutions.transport.mlobi</groupId>
   <artifactId>mlobi-transport</artifactId>
   <packaging>bundle</packaging>
-  <version>10.3.0</version>
+  <version>10.3.1</version>
   <name>mlobi-transport</name>
   <url>http://maven.apache.org</url>
   <properties>
@@ -27,8 +27,9 @@
 			<url>file:///Program Files/ArcGIS/Server/GeoEvent/System</url>
 		</repository>
 	</repositories>
-  <dependencyManagement>
+  	<dependencyManagement>
 		<dependencies>
+			
 			<dependency>
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging</artifactId>
@@ -38,14 +39,16 @@
 	</dependencyManagement>
 	<dependencies>
 		<dependency>
-			<groupId>com.esri.geoevent.solutions.util</groupId>
-			<artifactId>Utilities</artifactId>
+			<groupId>com.esri.geoevent.transport</groupId>
+			<artifactId>http-transport</artifactId>
 			<version>10.3.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/http-transport-10.3.1.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>com.esri.ges.sdk</groupId>
-			<artifactId>ges-lib</artifactId>
-			<version>10.3.0</version>
+			<groupId>com.esri.geoevent.sdk</groupId>
+			<artifactId>geoevent-sdk</artifactId>
+			<version>10.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.esri.ges.manager</groupId>
@@ -80,7 +83,7 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.2</version>
+			<version>4.3.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -109,8 +112,8 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
-						<source>1.6</source>
-						<target>1.6</target>
+						<source>1.7</source>
+						<target>1.7</target>
 					</configuration>
 				</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
