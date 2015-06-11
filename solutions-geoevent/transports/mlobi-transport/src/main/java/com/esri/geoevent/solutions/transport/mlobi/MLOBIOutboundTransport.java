@@ -3,25 +3,23 @@ package com.esri.geoevent.solutions.transport.mlobi;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharsetDecoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.params.HttpParams;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -32,7 +30,6 @@ import com.esri.ges.core.component.RunningState;
 import com.esri.ges.core.http.GeoEventHttpClient;
 import com.esri.ges.core.http.GeoEventHttpClientService;
 import com.esri.ges.core.http.KeyValue;
-import com.esri.ges.datastore.agsconnection.LayerDetails;
 import com.esri.ges.framework.i18n.BundleLogger;
 import com.esri.ges.framework.i18n.BundleLoggerFactory;
 import com.esri.ges.transport.OutboundTransportBase;
@@ -41,12 +38,12 @@ import com.esri.ges.transport.TransportContext;
 import com.esri.ges.transport.TransportDefinition;
 import com.esri.ges.transport.http.HttpTransportContext;
 import com.esri.ges.transport.http.HttpUtil;
+import com.esri.ges.util.DateUtil;
 import com.esri.ges.util.Validator;
 
 
 public class MLOBIOutboundTransport extends OutboundTransportBase implements RestOutboundTransportProvider {
 	private enum RequestType {GENERATE_TOKEN, QUERY, UPDATE}
-	private Thread 										thread;
 	private String 										host;
 	private String 										user;
 	private String 										pw;
@@ -61,16 +58,15 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 	protected String									postBodyType;
 	protected String									postBody = "";
 	private String										headerParams;
-	private String										mode;
+	//private String										mode;
 	private int 										httpTimeoutValue;
-	private Boolean 									setheader = false;
 	private String 										featureService;
 	private String 										layerIndex;
 	private boolean										append;
 	private volatile String								trackIDField;
 	private final HashMap<String, String>				oidCache = new HashMap<String, String>();
 	private final ObjectMapper							mapper = new ObjectMapper();
-	private String 										oidQueryParams;
+	//private String 										oidQueryParams;
 	private final List<String>							insertFeatureList = new ArrayList<String>();
 	private final List<String>							updateFeatureList = new ArrayList<String>();
 	private final StringBuilder							featureBuffer				= new StringBuilder(1024);
@@ -83,7 +79,13 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 	private JsonNode									features;
 	private GeoEventHttpClientService					httpService;
 	private String										layerDescriptionForLogs;
-	
+	public static final String							AGS_DATE_FORMAT	= "yyyy-MM-dd HH:mm:ss";
+	@SuppressWarnings("rawtypes")
+	private static ThreadLocal format = new ThreadLocal() {
+		protected synchronized Object initialValue() {
+			return new SimpleDateFormat(AGS_DATE_FORMAT);
+		}
+	};
 	public MLOBIOutboundTransport(TransportDefinition definition, GeoEventHttpClientService httpClientService)
 			throws ComponentException {
 		super(definition);
@@ -97,7 +99,7 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 	{
 		setup();
 	}
-	@Override
+	/*@Override
 	public void beforeConnect(TransportContext context)
 	{
 		try {
@@ -113,10 +115,11 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 			LOGGER.error(e.getMessage(), e);
 		}
 		
-	}
+	}*/
 	
 	
 	
+	@SuppressWarnings("incomplete-switch")
 	@Override
 	public synchronized void start()
 	{
@@ -132,6 +135,8 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 		context = new HttpTransportContext();
 		context.setHttpClientService(httpClientService);
 		setRunningState(RunningState.STARTED);
+		setErrorMessage(null);
+		startCleanUpThread();
 	}
 
 	@Override
@@ -170,9 +175,27 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 	public void receive(ByteBuffer bb, String channelid) {
 		if (host != null || !host.isEmpty())
 		{
-			byte[] data = new byte[bb.remaining()];
-			bb.get(data);
-			doHttp(data);
+			//byte[] data = new byte[bb.remaining()];
+			//bb.get(data);
+			if(this.getRunningState()==RunningState.STARTED){
+				if(token == null)
+				{
+					doHttp("", RequestType.GENERATE_TOKEN);
+				}
+				try{
+					CharsetDecoder decoder = getCharsetDecoder();
+					CharBuffer charBuffer = decoder.decode(bb);
+					String jsonString = charBuffer.toString();
+					doHttp(jsonString, RequestType.UPDATE);
+				}
+				catch(Exception e)
+				{
+					String errorMsg = LOGGER.translate("BUFFER_PARSING_ERROR", e.getMessage());
+					LOGGER.error(errorMsg);
+					LOGGER.info(e.getMessage(), e);
+					//errorMessage = errorMsg;
+				}
+			}
 		}
 		
 	}
@@ -185,28 +208,34 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 	
 	public synchronized void setup()
 	{
-		host = properties.get("server").getValueAsString();
-		user = properties.get("username").getValueAsString();
-		pw = properties.get("password").getValueAsString();
-		featureService = properties.get("featureservice").getValueAsString();
-		layerIndex = properties.get("layerindex").getValueAsString();
+		host = getProperty("server").getValueAsString();
+		user = getProperty("username").getValueAsString();
+		pw = getProperty("password").getValueAsString();
+		featureService = getProperty("featureservice").getValueAsString();
+		layerIndex = getProperty("layerindex").getValueAsString();
+		trackIDField = getProperty("trackid").getValueAsString();
+		cleanupOldFeatures = ((Boolean) getProperty("cleanupFeatures").getValue()).booleanValue();
+		featureLifeSpan = Integer.parseInt(getProperty("featureLifeSpan").getValueAsString());
+		cleanupFrequency = Integer.parseInt(getProperty("cleanupFrequency").getValueAsString());
+		cleanupTimeField = getProperty("cleanupTimeField").getValueAsString();
 		loginUrl = host + "/user/login";
 		clientUrl = host + "/rest/services/" + featureService + "/" + layerIndex + "/updateFeatures";
 		httpMethod = "POST";
 		acceptableMimeTypes_client = "application/json";
 		postBodyType = "application/x-www-form-urlencoded";
 		headerParams = "";
-		mode = "CLIENT";
+		//mode = "CLIENT";
 		httpTimeoutValue = GeoEventHttpClient.DEFAULT_TIMEOUT;
+		layerDescriptionForLogs = surroundBrackets("MarkLogic OBI")+ surroundBrackets(featureService) + surroundBrackets(layerIndex)+surroundBrackets("FeatureServer");
+		
 		
 	}
 	
 	
 		
-	private void doHttp(byte[] data)
+	/*private void doHttp(byte[] data)
 	{
-		if(token == null)
-			setheader = true;
+		
 		try (GeoEventHttpClient http = httpClientService.createNewClient())
 		{
 			HttpRequestBase request = HttpUtil.createHttpRequest(http, clientUrl, httpMethod, "", acceptableMimeTypes_client, postBodyType, data, headerParams, LOGGER);
@@ -335,7 +364,8 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 		{
 			LOGGER.error(exp.getMessage(), exp);
 		}
-	}
+	}*/
+	
 	private void doHttp(String jsonString, RequestType type)
 	{
 		try
@@ -361,8 +391,8 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 			}
 			else if(type == RequestType.UPDATE)
 			{
-				GeoEventHttpClient http = httpClientService.createNewClient();
-				clientUrl = host + "/rest/services/" + featureService + "/" + layerIndex + "/updateFeatures";
+				//GeoEventHttpClient http = httpClientService.createNewClient();
+				//clientUrl = host + "/rest/services/" + featureService + "/" + layerIndex + "/updateFeatures";
 				try{
 					features = mapper.readTree(jsonString);
 				}
@@ -380,17 +410,22 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 				ArrayList<String> missingTrackIDs = getListOfUncachedTrackIDs(features);
 				queryForMissingOIDs(missingTrackIDs);
 				buildJSONStrings(features);
-				String requestBody = "";
-				//String requestBody = generateUpdatePayLoad(byte[] data);
-				HttpRequestBase request = HttpUtil.createHttpRequest(http, clientUrl, httpMethod, "", acceptableMimeTypes_client, postBodyType, requestBody, headerParams, LOGGER);
-				doHttp(http, request);
+				if (!updateFeatureList.isEmpty())
+				{
+					performTheUpdateOperations(updateFeatureList);
+				}
+				// Add the new features
+				if (!insertFeatureList.isEmpty())
+					performTheInsertOperations(insertFeatureList);
+				//HttpRequestBase request = HttpUtil.createHttpRequest(http, clientUrl, httpMethod, "", acceptableMimeTypes_client, postBodyType, requestBody, headerParams, LOGGER);
+				//doHttp(http, request);
 				
-				http = httpClientService.createNewClient();
-				clientUrl = host + "/rest/services/" + featureService + "/" + layerIndex + "/addFeatures";
-				requestBody = "";
+				//http = httpClientService.createNewClient();
+				//clientUrl = host + "/rest/services/" + featureService + "/" + layerIndex + "/addFeatures";
+				//requestBody = "";
 				//String requestBody = generateInsertPayLoad(byte[] data);
-				request = HttpUtil.createHttpRequest(http, clientUrl, httpMethod, "", acceptableMimeTypes_client, postBodyType, requestBody, headerParams, LOGGER);
-				doHttp(http, request);
+				//request = HttpUtil.createHttpRequest(http, clientUrl, httpMethod, "", acceptableMimeTypes_client, postBodyType, requestBody, headerParams, LOGGER);
+				//doHttp(http, request);
 			}
 			
 		}
@@ -476,7 +511,7 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 		}
 	}
 	
-	private void generateToken(String username, String pw, HttpTransportContext context) throws Exception
+	/*private void generateToken(String username, String pw, HttpTransportContext context) throws Exception
 	{
 		try
 		{
@@ -537,7 +572,7 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 		}
 		
 		
-	}
+	}*/
 	
 	private ArrayList<String> getListOfUncachedTrackIDs(JsonNode features)
 	{
@@ -917,6 +952,28 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 		return sb.toString();
 	}
 	
+	private void startCleanUpThread()
+	{
+		if (cleanupOldFeatures && !cleanupTimeField.isEmpty())
+		{
+			if (cleanupThread == null && (getRunningState() == RunningState.STARTED || getRunningState() == RunningState.STARTING))
+			{
+				cleanupThread = new CleanupThread();
+				cleanupThread.setName("OutboundFeatureServiceCleanerThread-" + layerDescriptionForLogs);
+				cleanupThread.setDaemon(true);
+				cleanupThread.start();
+			}
+		}
+		else
+		{
+			if (cleanupThread != null)
+			{
+				cleanupThread.dismiss();
+				cleanupThread = null;
+			}
+		}
+	}
+	
 	private class CleanupThread extends Thread
 	{
 		private volatile boolean	running	= true;
@@ -933,7 +990,7 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 			{
 				try
 				{
-					//cleanup();
+					cleanup();
 					sleep(cleanupFrequency * 1000);
 				}
 				catch (InterruptedException ex)
@@ -948,6 +1005,153 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 				}
 			}
 		}
+	}
+	
+	private void cleanup()
+	{
+		
+		URL url;
+
+		Collection<KeyValue> params = new ArrayList<KeyValue>();
+		try
+		{
+			Date now = new Date();
+			Date cutoffDate = DateUtil.addMins(now, (-1 * featureLifeSpan));
+			// SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			// sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+			// String dateStr = sdf.format(cutoffDate);
+			// String whereClause = cleanupTimeField + "<'" +dateStr + "'";
+			// String whereClause = cleanupTimeField + " < " + ags.getDateTimeQueryOperand(dateStr);
+			String whereClause = cleanupTimeField + " " + "<" + " timestamp '" + formatUTCDate(cutoffDate) + "'";
+			clientUrl = host + "/rest/services/" + featureService + "/" + layerIndex +"/deleteFeatures";
+			url = new URL(clientUrl);
+			params.add(new KeyValue("f", "json"));
+			params.add(new KeyValue("where", whereClause));
+
+			String responseString = postAndGetReply(url, params);
+			validateResponse(responseString);
+			LOGGER.debug("RESPONSE_HEADER_MSG", responseString);
+		}
+		catch (Exception e)
+		{
+			LOGGER.error("ERROR_DELETING_FS", featureService, paramsToString(params), e.getMessage());
+			LOGGER.info(e.getMessage(), e);
+		}
+	}
+	
+	/*private boolean internalValidate()
+	{
+		try
+		{
+			
+			boolean hasField = false;
+			List<String> fields = layerDetailsLocal.getFields();
+			if (!append)
+			{
+				if (fields != null)
+				{
+					for (String field : fields)
+					{
+						if (field.equals(trackIDField))
+						{
+							hasField = true;
+							break;
+						}
+					}
+				}
+				if (!hasField)
+					throw new Exception(LOGGER.translate("ID_FIELD_DOES_NOT_EXIST", trackIDField));
+
+				String[] requiredCaps = { "Create", "Query", "Update" };
+				validateCapability(layerDetailsLocal.getCapabilities(), requiredCaps);
+			}
+			else
+			{
+				String[] requiredCaps = { "Create" };
+				validateCapability(layerDetailsLocal.getCapabilities(), requiredCaps);
+			}
+			boolean hasCleanupTimeField = false;
+			if (cleanupOldFeatures && fields != null)
+			{
+				for (String field : fields)
+				{
+					if (field.equals(cleanupTimeField))
+						hasCleanupTimeField = true;
+				}
+				if (!hasCleanupTimeField)
+					throw new Exception(LOGGER.translate("TIMESTAMP_FIELD_DOES_NOT_EXIST", cleanupTimeField));
+
+				String[] requiredCaps = { "Delete" };
+				validateCapability(layerDetailsLocal.getCapabilities(), requiredCaps);
+			}
+			if (getRunningState() != null && getRunningState() == RunningState.ERROR)
+				setRunningState(RunningState.STOPPED);
+		}
+		catch (Exception e)
+		{
+			setErrorState(LOGGER.translate("VALIDATION_ERROR", e.getMessage()));
+			LOGGER.error(LOGGER.translate("VALIDATION_ERROR", e.getMessage()));
+			return false;
+		}
+		return true;
+	}*/
+	
+	private void validateCapability(List<String> availableCaps, String[] requiredCaps) throws Exception
+	{
+		for (int i = 0; i < requiredCaps.length; i++)
+		{
+			if (!availableCaps.contains(requiredCaps[i]))
+				throw new Exception(LOGGER.translate("MISSING_CAPABILITY", requiredCaps[i]));
+		}
+	}
+	
+	private void stop(boolean unregisterAsListener)
+	{
+		if (cleanupThread != null)
+		{
+			cleanupThread.dismiss();
+			cleanupThread = null;
+		}
+		
+		setErrorMessage(null);
+		setRunningState(RunningState.STOPPED);
+		
+		if (unregisterAsListener)
+		{
+			try
+			{
+				GeoEventHttpClient http = httpClientService.createNewClient();
+				String logouturl = host + "/user/logout" ;
+				HttpRequestBase request = HttpUtil.createHttpRequest(http, logouturl, "POST", "", "application/json", "application/x-www-form-urlencoded", "", LOGGER);
+				request.setHeader("Cookie", token);
+				doHttp(http, request);
+			}
+			catch (Throwable t)
+			{
+				// Chances are we're shutting down...
+				LOGGER.warn("STOP_ERROR", t.getMessage());
+			}
+		}
+	}
+	
+	private void setErrorState(String message)
+	{
+		stop(false);
+		setRunningState(RunningState.ERROR);
+		setErrorMessage(message);
+		LOGGER.error(message);
+	}
+	
+	public static String formatUTCDate(Date date)
+	{
+		DateFormat format = getFormat();
+		format.setTimeZone(TimeZone.getTimeZone("UTC"));
+		return format.format(date);
+	}
+	
+	private static DateFormat getFormat()
+	{
+		return (DateFormat) format.get();
 	}
 
 }
