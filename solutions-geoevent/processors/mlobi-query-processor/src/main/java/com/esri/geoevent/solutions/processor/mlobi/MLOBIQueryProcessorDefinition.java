@@ -11,8 +11,8 @@ public class MLOBIQueryProcessorDefinition extends GeoEventProcessorDefinitionBa
 		propertyDefinitions.put("host", new PropertyDefinition("host", PropertyType.String, "", "${com.esri.geoevent.solutions.processor.mlobi.mlobi-query-processor.LBL_SERVER}","${com.esri.geoevent.solutions.processor.mlobi.mlobi-query-processor.DESC_SERVER}", true, false));
 		propertyDefinitions.put("user", new PropertyDefinition("user", PropertyType.String, "", "${com.esri.geoevent.solutions.processor.mlobi.mlobi-query-processor.LBL_USER}","${com.esri.geoevent.solutions.processor.mlobi.mlobi-query-processor.DESC_USER}", true, false));
 		propertyDefinitions.put("password", new PropertyDefinition("password", PropertyType.String, "", "${com.esri.geoevent.solutions.processor.mlobi.mlobi-query-processor.LBL_PW}","${com.esri.geoevent.solutions.processor.mlobi.mlobi-query-processor.DESC_PW}", true, false));
-		propertyDefinitions.put("query", new PropertyDefinition("query", PropertyType.String, "", "${com.esri.geoevent.solutions.processor.mlobi.mlobi-query-processor.LBL_QUERY}","${com.esri.geoevent.solutions.processor.mlobi.mlobi-query-processor.DESC_QUERY}", true, false));
-	}
+		propertyDefinitions.put("query", new PropertyDefinition("query", PropertyType.Condition, null, "${com.esri.geoevent.solutions.processor.mlobi.mlobi-query-processor.LBL_QUERY}","${com.esri.geoevent.solutions.processor.mlobi.mlobi-query-processor.DESC_QUERY}", true, false));
+	} 
 	
 	@Override
 	public String getName() {

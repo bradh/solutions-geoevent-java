@@ -1,7 +1,12 @@
 package com.esri.geoevent.solutions.transport.mlobi;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetDecoder;
@@ -15,11 +20,19 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -77,7 +90,7 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 	private CleanupThread								cleanupThread;
 	private volatile int								maxTransactionSize	= 500;
 	private JsonNode									features;
-	private GeoEventHttpClientService					httpService;
+
 	private String										layerDescriptionForLogs;
 	public static final String							AGS_DATE_FORMAT	= "yyyy-MM-dd HH:mm:ss";
 	@SuppressWarnings("rawtypes")
@@ -144,6 +157,7 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 	{
 		super.stop();
 		LOGGER.debug("OUTBOUND_STOP");
+		stop(true);
 		if (token != null)
 		{
 			token = null;
@@ -366,6 +380,139 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 		}
 	}*/
 	
+	/*private void doHttp(byte[] data)
+	{
+		
+		try (GeoEventHttpClient http = httpClientService.createNewClient())
+		{
+			HttpRequestBase request = HttpUtil.createHttpRequest(http, clientUrl, httpMethod, "", acceptableMimeTypes_client, postBodyType, data, headerParams, LOGGER);
+			if (request != null && request instanceof HttpUriRequest)
+			{
+				context.setHttpRequest(request);
+				this.beforeConnect(context);
+				CloseableHttpResponse response;
+				try
+				{
+					response = http.execute(request, httpTimeoutValue);
+					if (response != null)
+					{
+					// check if we were in error state - if so then set state to running
+						// - we have reconnected
+						if (getRunningState() == RunningState.ERROR)
+						{
+							LOGGER.info("RECONNECTION_MSG", clientUrl);
+							setErrorMessage(null);
+							setRunningState(RunningState.STARTED);
+						}
+						
+						context.setHttpResponse(response);
+						this.onReceive(context);
+					}
+					else
+					{
+						// log only if we were not in error state already
+						if (getRunningState() != RunningState.ERROR)
+						{
+							String errorMsg = LOGGER.translate("FAILED_HTTP_METHOD", clientUrl, httpMethod);
+							LOGGER.info(errorMsg);
+	
+							// set the error state
+							setErrorMessage(errorMsg);
+							setRunningState(RunningState.ERROR);
+						}
+					}
+				}
+				catch (IOException e)
+				{
+					// log only if we were not in error state already
+					if( getRunningState() != RunningState.ERROR )
+					{
+						
+						String errorMsg = LOGGER.translate("ERROR_ACCESSING_URL", clientUrl, e.getMessage());
+						LOGGER.error(errorMsg);
+						LOGGER.info(e.getMessage(), e);
+						
+						// set the error state
+						setErrorMessage(errorMsg);
+						setRunningState(RunningState.ERROR);
+					}
+				}
+			}
+		}
+		catch (Exception exp)
+		{
+			LOGGER.error(exp.getMessage(), exp);
+		}
+	}
+	
+	protected void doHttp()
+	{
+		try (GeoEventHttpClient http = httpClientService.createNewClient())
+		{
+			HttpRequestBase request = HttpUtil.createHttpRequest(http, clientUrl, httpMethod, "", acceptableMimeTypes_client, postBodyType, postBody, headerParams, LOGGER);
+			if (request != null && request instanceof HttpUriRequest)
+			{
+				context.setHttpRequest(request);
+				this.beforeConnect(context);
+				CloseableHttpResponse response = null;
+				try
+				{
+					response = http.execute(request, httpTimeoutValue);
+					if (response != null)
+					{
+						// check if we were in error state - if so then set state to running
+						// - we have reconnected
+						if (getRunningState() == RunningState.ERROR)
+						{
+							LOGGER.info("RECONNECTION_MSG", clientUrl);
+							setErrorMessage(null);
+							setRunningState(RunningState.STARTED);
+						}
+	
+						context.setHttpResponse(response);
+						this.onReceive(context);
+					}
+					else
+					{
+						// log only if we were not in error state already
+						if (getRunningState() != RunningState.ERROR)
+						{
+							String errorMsg = LOGGER.translate("RESPONSE_FAILURE", clientUrl);
+							LOGGER.info(errorMsg);
+	
+							// set the error state
+							setErrorMessage(errorMsg);
+							setRunningState(RunningState.ERROR);
+						}
+					}
+				}
+				catch (IOException e)
+				{
+					// log only if we were not in error state already
+					if( getRunningState() != RunningState.ERROR )
+					{
+						
+						String errorMsg = LOGGER.translate("ERROR_ACCESSING_URL", clientUrl, e.getMessage());
+						LOGGER.error(errorMsg);
+						LOGGER.info(e.getMessage(), e);
+						
+						// set the error state
+						setErrorMessage(errorMsg);
+						setRunningState(RunningState.ERROR);
+					}
+				}
+				finally
+				{
+					IOUtils.closeQuietly(response);
+				}
+			}
+		}
+		catch (Exception exp)
+		{
+			LOGGER.error(exp.getMessage(), exp);
+		}
+	}*/
+	
 	private void doHttp(String jsonString, RequestType type)
 	{
 		try
@@ -375,7 +522,9 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 				GeoEventHttpClient http = httpClientService.createNewClient();
 				clientUrl = host + "/user/login";
 				String requestBody = generateTokenPayLoad();
-				HttpRequestBase request = HttpUtil.createHttpRequest(http, clientUrl, "POST", "", "application/json", "application/x-www-form-urlencoded", requestBody, LOGGER);
+				//HttpRequestBase request = HttpUtil.createHttpRequest(http, clientUrl, "POST", "", "application/json", "application/x-www-form-urlencoded", requestBody, LOGGER);
+				URL url = new URL(clientUrl);
+				HttpPost request = http.createPostRequest(url, requestBody, "application/json;charset=UTF-8");
 				doHttp(http, request);
 			}
 			else if(type == RequestType.QUERY)
@@ -434,8 +583,8 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 			LOGGER.error(e.getMessage(), e);
 		}
 	}
-	
-	
+
+
 	private void doHttp(GeoEventHttpClient http, HttpRequestBase request)
 	{
 		if (request != null && request instanceof HttpUriRequest)
@@ -501,7 +650,7 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 			String password;
 			password = cryptoService.decrypt(pw);
 			String passwordString = surroundQuotes(password);
-			String content = userKey + ":" + userString + "," + pwKey + ":"
+			String content = userKey + ": " + userString + "," + pwKey + ": "
 					+ passwordString;
 			String requestBody = surroundCurlyBrackets(content);
 			return requestBody;
@@ -653,12 +802,12 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 
 	private String performTheUpdate(List<String> featureList) throws IOException
 	{
-		clientUrl = host + "/rest/services/" + featureService + "/" + layerIndex + "/updateFeatures";
+		clientUrl = host + "/rest/services/" + featureService + "/FeatureServer/" + layerIndex + "/applyEdits";
 		URL url = new URL(clientUrl);
 		Collection<KeyValue> params = new ArrayList<KeyValue>();
-		params.add(new KeyValue("features", makeFeatureListString(featureList)));
+		params.add(new KeyValue("f", "json"));
+		params.add(new KeyValue("updates", makeFeatureListString(featureList)));
 		
-
 		if (LOGGER.isDebugEnabled())
 			LOGGER.debug("URL_POST_DEBUG", url, paramsToString(params));
 		String responseString = postAndGetReply(url, params);
@@ -670,18 +819,30 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 		while (featureList.size() > maxTransactionSize)
 			performTheInsertOperations(featureList.subList(0, maxTransactionSize));
 
-		clientUrl = host + "/rest/services/" + featureService + "/" + layerIndex + "/addFeatures";
+		clientUrl = host + "/rest/services/" + featureService + "/FeatureServer/" + layerIndex + "/applyEdits";
 		URL url = new URL(clientUrl);
 		Collection<KeyValue> params = new ArrayList<KeyValue>();
-		params.add(new KeyValue("features", makeFeatureListString(featureList)));
-
+		String featureString = makeFeatureListString(featureList);
+		params.add(new KeyValue("f", "json"));
+		params.add(new KeyValue("adds", featureString));
 		if (LOGGER.isDebugEnabled())
 			LOGGER.debug("URL_POST_DEBUG", url, paramsToString(params));
 		String responseString = postAndGetReply(url, params);
-		validateResponse(responseString);
+		//String responseString = executeGetAndGetReply(url, params);
+		//String responseString = postAndGetReply(url, makeFeatureListString(featureList));
+		try
+		{
+			validateResponse(responseString);
+		}
+		catch(Exception e)
+		{
+			featureList.clear();
+		}
 		LOGGER.debug("RESPONSE_HEADER_MSG", responseString);
 		featureList.clear();
 	}
+	
+	
 
 	private String makeFeatureListString(List<String> featureList)
 	{
@@ -779,31 +940,35 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 		StringBuffer buf = new StringBuffer(1024);
 		for (String trackID : missingTrackIDs)
 		{
-			LOGGER.debug("QUERYING_FOR_MISSING_TRACK_ID", trackID);
+			/*LOGGER.debug("QUERYING_FOR_MISSING_TRACK_ID", trackID);
 			if (buf.length() == 0)
 				buf.append(trackIDField + " IN (");
 			else
 				buf.append(",");
-			buf.append("\'" + trackID + "\'");
+			buf.append("\'" + trackID + "\'");*/
+			buf.append(trackID);
 		}
-		buf.append(")");
+		//buf.append(")");
 		missingTrackIDs.clear();
 		String whereString = buf.toString();
+		//String whereString = trackID;
 		performMissingOIDQuery(whereString);
 	}
 	
 	private void performMissingOIDQuery(String whereString) throws IOException
 	{
 		Collection<KeyValue> params = new ArrayList<KeyValue>();
-		params.add(new KeyValue("where", whereString));
+		
+		params.add(new KeyValue("f", "json"));
 		params.add(new KeyValue("outfields", trackIDField + "," + "objectId"));
 		params.add(new KeyValue("returnGeometry", "false"));
-		clientUrl = host + "/rest/services/" + featureService + "/" + layerIndex + "/query";
+		params.add(new KeyValue("where", whereString));
+		clientUrl = host + "/rest/services/" + featureService + "/FeatureServer/" + layerIndex + "/query";
 		URL url = new URL(clientUrl);
 		if (LOGGER.isDebugEnabled())
 			LOGGER.debug("URL_POST_DEBUG", url, paramsToString(params));
-
-		String responseString = postAndGetReply(url, params);
+		//String responseString = postAndGetReply(url, params);
+		String responseString = executeGetAndGetReply(url, params);
 		try
 		{
 			validateResponse(responseString);
@@ -822,7 +987,8 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 			JsonNode attributes = feature.get("attributes");
 			String oid = String.valueOf(attributes.get("objectId"));
 			// String trackID = attributes.get(trackIDField).getTextValue();
-			String trackID = getTrackIdAsString(attributes.get(trackIDField));
+			JsonNode tidNode = attributes.get("Track Id");
+			String trackID = getTrackIdAsString(tidNode);
 
 			if (trackID != null)
 			{
@@ -832,19 +998,135 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 	}
 	private String postAndGetReply(URL url, Collection<KeyValue> params) throws IOException
 	{
-		String responString = null;
-		try (GeoEventHttpClient http = httpService.createNewClient())
+		String responseString = null;
+		try (GeoEventHttpClient http = httpClientService.createNewClient())
 		{
-			HttpPost postRequest = http.createPostRequest(url, params);
+			//HttpPost postRequest = http.createPostRequest(url, params);
+			
+			List<NameValuePair> formParams = new ArrayList<NameValuePair>();
+		    if (params != null)
+		    {
+		      for (KeyValue parameter : params)
+		      {
+		        formParams.add(new BasicNameValuePair(parameter.getKey(), parameter.getValue()));
+		        LOGGER.debug("HTTP_ADDING_PARAM", parameter.getKey(), parameter.getValue());
+		      }
+		    }
+		    UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formParams, "UTF-8");
+		    HttpPost postRequest;
+		    try
+		    {
+		    	postRequest = new HttpPost(url.toURI());
+		    }
+		    catch (URISyntaxException e)
+		    {
+		      throw new RuntimeException(e);
+		    }
+		    postRequest.setEntity(entity);
+			postRequest.addHeader("Accept", "application/json,text/html,application/xhtml+xml,application/xml");
 			postRequest.addHeader("Cookie", token);
-			responString = http.executeAndReturnBody(postRequest, GeoEventHttpClient.DEFAULT_TIMEOUT);
+			//postRequest.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+			postRequest.setHeader("charset","utf-8");
+			responseString = http.executeAndReturnBody(postRequest, GeoEventHttpClient.DEFAULT_TIMEOUT);
 		}
 		catch (Exception e)
 		{
 			LOGGER.debug(e.getMessage());
 		}
-		return responString;
+		return responseString;
 	}
+
+	private String postAndGetReply(URL url, String body) throws IOException
+	{
+		String responseString = null;
+		try (GeoEventHttpClient http = httpClientService.createNewClient())
+		{
+			HttpPost postRequest = http.createPostRequest(url, body, "application/json;charset=UTF-8");
+
+			postRequest.addHeader("Accept", "text/html,application/xhtml+xml,application/xml");
+			postRequest.addHeader("Cookie", token);
+			//postRequest.addHeader("Content Type","application/json;charset=UTF-8");
+			responseString = http.executeAndReturnBody(postRequest, GeoEventHttpClient.DEFAULT_TIMEOUT);
+		}
+		catch (Exception e)
+		{
+			LOGGER.debug(e.getMessage());
+		}
+		return responseString;
+	}
+	private String executeGetAndGetReply(URL url, Collection<KeyValue> params) {
+		String responseString = null;
+		try (GeoEventHttpClient http = httpClientService.createNewClient()) {
+			// HttpGet getRequest = http.createGetRequest(url, params);
+			String paramString = "?";
+			Boolean isFirst = true;
+			for (KeyValue k : params) {
+				if (!isFirst) {
+					paramString += "&";
+				} else {
+					isFirst = false;
+				}
+				String key = k.getKey();
+				String value = k.getValue();
+				paramString += key + "=" +  URLEncoder.encode(value, "UTF-8");
+				
+
+			}
+			//String encodedParams = URLEncoder.encode(paramString, "UTF-8");
+			String uri = url + paramString;
+			//String uri = "http://obi-esri.demo.marklogic.com/rest/services/obi-arcgis/FeatureServer/4/query?f=json&outfields=track-id,objectId&returnGeometry=false&where=12345";
+			//token="sid=s%3AeP9e9pkN47h7H31sxa3L8pBPVPP-xI9I.%2BfetBeKb%2F%2BuBBJjBNd2V65x7z6QFruZynsRK2%2Fb0peM";
+			HttpGet getRequest = new HttpGet(uri);
+			String contentType = "text/html,application/xhtml+xml,application/xml,application/json";
+			getRequest.addHeader("Cookie", token);
+			getRequest.addHeader("Accept", contentType);
+			HttpClient httpclient = HttpClientBuilder.create().build();
+			HttpResponse response = httpclient.execute(getRequest);
+			HttpEntity entity = response.getEntity();
+			InputStream instream = entity.getContent();
+			try {
+				BufferedReader br = new BufferedReader(new InputStreamReader(
+						(instream)));
+				responseString = "";
+				String ln;
+				while ((ln = br.readLine()) != null) {
+					responseString += ln;
+				}
+			} catch (IOException ex) {
+				// In case of an IOException the connection will be
+				// released
+				// back to the connection manager automatically
+				LOGGER.error(ex.getMessage());
+				throw ex;
+
+			} catch (RuntimeException ex) {
+				// In case of an unexpected exception you may want to
+				// abort
+				// the HTTP request in order to shut down the underlying
+				// connection immediately.
+				LOGGER.error(ex.getMessage());
+				getRequest.abort();
+				throw ex;
+			} catch (Exception ex) {
+
+				LOGGER.error(ex.getMessage());
+				getRequest.abort();
+				throw ex;
+			} finally {
+				// Closing the input stream will trigger connection
+				// release
+				try {
+					instream.close();
+				} catch (Exception ignore) {
+				}
+			}
+			
+		} catch (Exception e) {
+			LOGGER.debug(e.getMessage());
+		}
+		return responseString;
+	}
+	
 	private String getTrackIdAsString(JsonNode trackIDNode)
 	{
 		String output = null;
@@ -1105,29 +1387,56 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 		}
 	}
 	
-	private void stop(boolean unregisterAsListener)
-	{
-		if (cleanupThread != null)
-		{
+	private void stop(boolean unregisterAsListener) {
+		if (cleanupThread != null) {
 			cleanupThread.dismiss();
 			cleanupThread = null;
 		}
-		
+
 		setErrorMessage(null);
 		setRunningState(RunningState.STOPPED);
-		
-		if (unregisterAsListener)
-		{
-			try
-			{
+
+		if (unregisterAsListener) {
+			try {
 				GeoEventHttpClient http = httpClientService.createNewClient();
-				String logouturl = host + "/user/logout" ;
-				HttpRequestBase request = HttpUtil.createHttpRequest(http, logouturl, "POST", "", "application/json", "application/x-www-form-urlencoded", "", LOGGER);
+				String logouturl = host + "/user/logout";
+				HttpRequestBase request = HttpUtil.createHttpRequest(http,
+						logouturl, "POST", "", "application/json",
+						"application/x-www-form-urlencoded", "", LOGGER);
 				request.setHeader("Cookie", token);
-				doHttp(http, request);
-			}
-			catch (Throwable t)
-			{
+				
+				CloseableHttpResponse response;
+				try {
+					response = http.execute(request, httpTimeoutValue);
+					if (response == null) {
+						if (getRunningState() == RunningState.ERROR) {
+							LOGGER.info("RECONNECTION_MSG", clientUrl);
+							setErrorMessage(null);
+							setRunningState(RunningState.STARTED);
+						}
+
+						context.setHttpResponse(response);
+					} else {
+						// log only if we were not in error state already
+						if (getRunningState() != RunningState.ERROR) {
+							;
+						}
+					}
+				} catch (IOException e) {
+					if( getRunningState() != RunningState.ERROR )
+					{
+						
+						String errorMsg = LOGGER.translate("ERROR_ACCESSING_URL", clientUrl, e.getMessage());
+						LOGGER.error(errorMsg);
+						LOGGER.info(e.getMessage(), e);
+						
+						// set the error state
+						setErrorMessage(errorMsg);
+						setRunningState(RunningState.ERROR);
+					}
+				}
+
+			} catch (Throwable t) {
 				// Chances are we're shutting down...
 				LOGGER.warn("STOP_ERROR", t.getMessage());
 			}

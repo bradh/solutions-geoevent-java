@@ -5,5 +5,10 @@
 		<property name="bundleContext" ref="blueprintBundleContext"/>
 		<property name="httpClientService" ref="httpClientService" />
 	</bean>
+	<bean id="mlobiInboundTransportServiceBean" class="com.esri.geoevent.solutions.transport.mlobi.MLOBIInboundTransportService" activation="eager">
+		<property name="bundleContext" ref="blueprintBundleContext"/>
+		<property name="httpClientService" ref="httpClientService" />
+	</bean>
 	<service id="mlobiOutboundTransportService" ref="mlobiOutboundTransportServiceBean" interface="com.esri.ges.transport.TransportService"/>
+	<service id="mlobiInboundTransportService" ref="mlobiInboundTransportServiceBean" interface="com.esri.ges.transport.TransportService"/>
 </blueprint>

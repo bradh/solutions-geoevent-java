@@ -10,7 +10,11 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 
+import com.esri.ges.core.ConfigurationException;
 import com.esri.ges.core.component.ComponentException;
+import com.esri.ges.core.geoevent.DefaultFieldDefinition;
+import com.esri.ges.core.geoevent.FieldDefinition;
+import com.esri.ges.core.geoevent.FieldType;
 import com.esri.ges.core.geoevent.GeoEvent;
 import com.esri.ges.core.http.GeoEventHttpClient;
 import com.esri.ges.core.http.GeoEventHttpClientService;
@@ -40,6 +44,7 @@ public class MLOBIQueryProcessor extends GeoEventProcessorBase implements GeoEve
 	private String										user;
 	private String 										pw;
 	private String 										querystring;
+	private Integer 									numResultsReturned;
 	private GeoEventHttpClientService					httpClientService;
 	private HttpTransportContext						context;
 	
@@ -56,6 +61,20 @@ public class MLOBIQueryProcessor extends GeoEventProcessorBase implements GeoEve
 		user = getProperty("user").getValueAsString();
 		pw = getProperty("password").getValueAsString();
 		querystring = getProperty("query").getValueAsString();
+		numResultsReturned = Integer.parseInt(getProperty("numresults").getValueAsString());
+		List<FieldDefinition> fieddefs = new ArrayList<FieldDefinition>();
+		try {
+			FieldDefinition time = new DefaultFieldDefinition("time_received", FieldType.Date, "TIMESTAMP");
+			FieldDefinition results = new DefaultFieldDefinition("obi_query_results", FieldType.Group, "OBI_QUERY_RESULTS");
+			for(int i = 0; i < numResultsReturned; ++i)
+			{
+				String indexStr = ((Integer)i).toString();
+				String name = "obi_result_" + indexStr;
+				FieldDefinition fd = new DefaultFieldDefinition(name, FieldType.String, "OBI_RESULT");
+			}
+		} catch (ConfigurationException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
 		
 	}
 	
@@ -69,6 +88,12 @@ public class MLOBIQueryProcessor extends GeoEventProcessorBase implements GeoEve
 				LOGGER.error(e.getMessage(), e);
 			}
 		}
+	}
+	
+	@Override
+	public boolean isGeoEventMutator()
+	{
+		return true;
 	}
 	
 	@Override
@@ -147,6 +172,11 @@ public class MLOBIQueryProcessor extends GeoEventProcessorBase implements GeoEve
 	public void setMessaging(Messaging messaging) {
 		this.messaging = messaging;
 		this.geoEventCreator = messaging.createGeoEventCreator();
+	}
+	
+	public void setHttpClientService( GeoEventHttpClientService service )
+	{
+	  this.httpClientService = service;
 	}
 	
 	//helper methods
