@@ -10,10 +10,15 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -74,6 +79,7 @@ public class MLOBIInboundTransport extends InboundTransportBase implements RestI
 	private final ObjectMapper							mapper = new ObjectMapper();
 	private JsonNode 									features;
 	private static final BundleLogger						LOGGER= BundleLoggerFactory.getLogger(MLOBIInboundTransport.class);
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 	
 	private class WorkerThread extends Thread
 	{
@@ -115,6 +121,7 @@ public class MLOBIInboundTransport extends InboundTransportBase implements RestI
 			throws ComponentException {
 		super(definition);
 		this.httpClientService = service;
+		charset = StandardCharsets.UTF_8;
 	}
 
 	@Override
@@ -187,16 +194,20 @@ public class MLOBIInboundTransport extends InboundTransportBase implements RestI
 				{
 					
 						Date cachedDate = new Date(lastTimestamp);
-						//format date as yyyy-mm-ddThh:mm:ss.0000
-						String dateStr = DateUtil.format(cachedDate);
+						String format ="yyyy-MM-dd'T'HH:mm:ss.SSSS";
+						TimeZone tz = TimeZone.getTimeZone("UTC");
+						SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+						dateFormat.setTimeZone(tz);
+						String dateStr = dateFormat.format(cachedDate);
+						//String dateStr = DateUtil.format(cachedDate, format);
 						if (queryDefinition.length() > 0)
 						{
 							// whereClause = queryDefinition + " and " + newFeaturesTimeFieldName + " > " + agscon.getDateTimeQueryOperand(dateStr);
-							whereClause = queryDefinition + " and " + "LastUpdated GT " + dateStr;
+							whereClause = queryDefinition + " and " + "object-activity-date GT " + dateStr;
 						}
 						else
 						{
-							whereClause = "LastUpdated GT " + dateStr;
+							whereClause = "object-activity-date GT " + dateStr;
 						}
 					
 				}
@@ -210,12 +221,12 @@ public class MLOBIInboundTransport extends InboundTransportBase implements RestI
 				String jsonString = executeGetAndGetReply(url, params);
 				JsonNode jsonReply = mapper.readTree(jsonString);
 				features = jsonReply.get("features");
-				
+				if(features.size() > 0 && getNewFeaturesOnly)
+					updateLastTimestamp(jsonReply);
 				for(int i = 0; i < features.size(); ++i )
 				{
 					JsonNode node = features.get(i);
-					if(getNewFeaturesOnly)
-						updateLastTimestamp(node);
+					
 					ByteBuffer buffer = charset.encode(node.toString());
 					byteListener.receive(buffer, Integer.toString(i));
 				}
@@ -381,17 +392,24 @@ public class MLOBIInboundTransport extends InboundTransportBase implements RestI
 		}
 	}
 	
-	private void updateLastTimestamp(JsonNode root)
+	private void updateLastTimestamp(JsonNode root) throws ParseException
 	{
 
 		JsonNode features = root.get("features");
+		String format ="yyyy-MM-dd'T'HH:mm:ss.SSSS";
 		if (features.isArray()) {
 			for (int i = 0; i < features.size(); i++) {
 				JsonNode feature = features.get(i);
-
-				if (feature.get("attributes").get(newFeaturesTimeFieldName) != null) {
-					long ts = feature.get("attributes")
-							.get(newFeaturesTimeFieldName).asLong();
+				JsonNode attributes = feature.get("attributes");
+				JsonNode time = attributes.get("LastUpdatedDateTime");
+				if (feature.get("attributes").get("LastUpdatedDateTime") != null) {
+					String timeString = time.toString();
+					timeString = timeString.substring(1, timeString.length()-1);
+					TimeZone tz = TimeZone.getTimeZone("UTC");
+					SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+					dateFormat.setTimeZone(tz);
+					Date d = dateFormat.parse(timeString);
+					long ts = d.getTime();
 					if (ts > lastTimestamp)
 						lastTimestamp = ts;
 				} else {
@@ -534,5 +552,7 @@ public class MLOBIInboundTransport extends InboundTransportBase implements RestI
 		{
 			return "[" + in + "]";
 		}
+		
+		
 
 }
