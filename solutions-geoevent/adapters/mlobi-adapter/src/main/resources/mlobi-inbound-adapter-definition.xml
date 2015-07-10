@@ -1,0 +1,9 @@
+<adapter name="MLOBIInboundAdapter"
+	label="MLOBI Inbound Adapter"
+	domain="com.esri.geoevent.solutions.adapter.mlobi.inbound" type="inbound">
+	<description>Converts MLOBI rest strings into GeoEvents
+	</description>
+	<propertyDefinitions>
+		
+	</propertyDefinitions>
+</adapter>
