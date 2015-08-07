@@ -36,7 +36,7 @@ public class MLOBIQueryProcessorDefinition extends GeoEventProcessorDefinitionBa
 
 	@Override
 	public String getDescription() {
-		return "${com.esri.geoevent.solutions.processor.mlobi.mlobi-query-processor-processor.PROCESSOR_DESCRIPTION}";
+		return "${com.esri.geoevent.solutions.processor.mlobi.mlobi-query-processor.PROCESSOR_DESCRIPTION}";
 	}
 
 	@Override

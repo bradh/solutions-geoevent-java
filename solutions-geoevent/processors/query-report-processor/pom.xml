@@ -22,7 +22,7 @@
 
     <groupId>com.esri.geoevent.solutions.processor.queryreport</groupId>
     <artifactId>query-report-processor</artifactId>
-    <version>10.3.0</version>
+    <version>10.3.1</version>
     <packaging>bundle</packaging>
 
     <name>query-report-processor Blueprint Bundle</name>
@@ -58,10 +58,10 @@
 		</dependencies>
 	</dependencyManagement>
 	<dependencies>
-		<dependency>
-			<groupId>com.esri.ges.sdk</groupId>
-			<artifactId>ges-lib</artifactId>
-			<version>10.3.0</version>
+			<dependency>
+			<groupId>com.esri.geoevent.sdk</groupId>
+			<artifactId>geoevent-sdk</artifactId>
+			<version>10.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.esri.geometry</groupId>
@@ -101,7 +101,7 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.2</version>
+			<version>4.3.1</version>
 			<scope>provided</scope>
 		</dependency>
 		

@@ -24,8 +24,13 @@
 		<property name="manager" ref="geoDefManagerService" />
 		<property name="httpClientService" ref="httpClientService" />
 	</bean>
-
+	<bean id="mlobiQueryConditionServiceBean"  class="com.esri.geoevent.solutions.processor.mlobi.MLOBIQueryConditionService" activation="eager"/>
 	<service id="mlobiQueryProcessorService" ref="mlobiQueryProcessorServiceBean"
 		interface="com.esri.ges.processor.GeoEventProcessorService" />
-
+	<service id="mlobiQueryConditionService" ref="mlobiQueryConditionServiceBean" interface="com.esri.ges.condition.ConditionService">
+		<service-properties>
+			<entry key="threadSafe" value="false" />
+			<entry key="serviceName" value="MLOBIQueryConditionService" />
+		</service-properties>
+	</service>
 </blueprint>

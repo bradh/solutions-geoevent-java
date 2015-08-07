@@ -4,7 +4,7 @@ import com.esri.ges.framework.i18n.BundleLogger;
 import com.esri.ges.framework.i18n.BundleLoggerFactory;
 
 public enum MLOBIQueryOperator {
-	AND, OR, NOT_IN, NEAR, NEAR_IN;
+	ISNULL, AND, OR, NOT_IN, NEAR, NEAR_IN;
 	
 	private static final BundleLogger					LOGGER = BundleLoggerFactory.getLogger(MLOBIQueryOperator.class);
 	

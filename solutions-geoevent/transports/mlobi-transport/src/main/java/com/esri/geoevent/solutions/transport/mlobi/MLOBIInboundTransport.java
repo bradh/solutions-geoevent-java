@@ -194,11 +194,13 @@ public class MLOBIInboundTransport extends InboundTransportBase implements RestI
 				{
 					
 						Date cachedDate = new Date(lastTimestamp);
-						String format ="yyyy-MM-dd'T'HH:mm:ss.SSSS";
+						String format ="yyyy-MM-dd'T'HH:mm:ss.SSS";
 						TimeZone tz = TimeZone.getTimeZone("UTC");
 						SimpleDateFormat dateFormat = new SimpleDateFormat(format);
 						dateFormat.setTimeZone(tz);
 						String dateStr = dateFormat.format(cachedDate);
+						dateStr = dateStr.substring(0, dateStr.length()-3);
+						dateStr += "999999";
 						//String dateStr = DateUtil.format(cachedDate, format);
 						if (queryDefinition.length() > 0)
 						{
@@ -396,7 +398,7 @@ public class MLOBIInboundTransport extends InboundTransportBase implements RestI
 	{
 
 		JsonNode features = root.get("features");
-		String format ="yyyy-MM-dd'T'HH:mm:ss.SSSS";
+		String format ="yyyy-MM-dd'T'HH:mm:ss.SSS";
 		if (features.isArray()) {
 			for (int i = 0; i < features.size(); i++) {
 				JsonNode feature = features.get(i);
@@ -404,7 +406,7 @@ public class MLOBIInboundTransport extends InboundTransportBase implements RestI
 				JsonNode time = attributes.get("LastUpdatedDateTime");
 				if (feature.get("attributes").get("LastUpdatedDateTime") != null) {
 					String timeString = time.toString();
-					timeString = timeString.substring(1, timeString.length()-1);
+					timeString = timeString.substring(1, timeString.length()-4);
 					TimeZone tz = TimeZone.getTimeZone("UTC");
 					SimpleDateFormat dateFormat = new SimpleDateFormat(format);
 					dateFormat.setTimeZone(tz);
