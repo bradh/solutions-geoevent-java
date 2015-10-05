@@ -987,7 +987,7 @@ public class MLOBIOutboundTransport extends OutboundTransportBase implements Res
 			JsonNode attributes = feature.get("attributes");
 			String oid = String.valueOf(attributes.get("objectId"));
 			// String trackID = attributes.get(trackIDField).getTextValue();
-			JsonNode tidNode = attributes.get("Track Id");
+			JsonNode tidNode = attributes.get("trackid");
 			String trackID = getTrackIdAsString(tidNode);
 
 			if (trackID != null)
