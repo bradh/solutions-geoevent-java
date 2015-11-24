@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	default-activation="lazy">
+	<reference id="geoDefManagerService"
+		interface="com.esri.ges.manager.geoeventdefinition.GeoEventDefinitionManager" />
+	<reference id="agsConnectionsManagerService"
+		interface="com.esri.ges.manager.datastore.agsconnection.ArcGISServerConnectionManager" />
+	<reference id="messagingService" interface="com.esri.ges.messaging.Messaging" />
+	<bean id="routingProcessorServiceBean"
+		class="com.esri.geoevent.solutions.processor.route.RoutingProcessorService">
+		<property name="bundleContext" ref="blueprintBundleContext" />
+		<property name="manager" ref="geoDefManagerService" />
+		<property name="connectionManager" ref="agsConnectionsManagerService" />
+		<property name="messaging" ref="messagingService" />
+	</bean>
+	
+	<service id="routingProcessorService" ref="routingProcessorServiceBean"
+		interface="com.esri.ges.processor.GeoEventProcessorService" />
+
+</blueprint>
