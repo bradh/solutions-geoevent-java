@@ -22,20 +22,17 @@ import com.esri.ges.messaging.GeoEventCreator;
 import com.esri.ges.messaging.Messaging;
 import com.esri.ges.processor.GeoEventProcessorBase;
 import com.esri.ges.processor.GeoEventProcessorDefinition;
-import com.esri.sde.sdk.pe.PeDatum;
 import com.esri.sde.sdk.pe.factory.PeFactory;
-import com.esri.sde.sdk.pe.PeGeographicCS;
-import com.esri.sde.sdk.pe.PeProjectionException;
-import com.esri.sde.sdk.pe.engine.PeAngunit;
+
 import com.esri.sde.sdk.pe.engine.PeGeogcs;
 import com.esri.sde.sdk.pe.engine.PeNotationUsng;
 import com.esri.sde.sdk.pe.engine.PeNotationUtm;
-import com.esri.sde.sdk.pe.engine.PePrimem;
+
 
 public class USNG2LatLongProcessor extends GeoEventProcessorBase {
 	private GeoEventDefinitionManager manager;
 	public Messaging messaging;
-	private Integer accuracy;
+	//private Integer accuracy;
 	private String newdef;
 	private String geofld;
 	private String usng;
@@ -145,7 +142,7 @@ public class USNG2LatLongProcessor extends GeoEventProcessorBase {
 	{
 		char[] charArray = usng.toCharArray();
 		int accuracy = 0;
-		boolean startSearching = false;
+		//boolean startSearching = false;
 		int index = 0;
 		for(int i = 0; i < charArray.length; ++i)
 		{
