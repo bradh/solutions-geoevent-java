@@ -25,12 +25,14 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+
 import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.LinearUnit;
@@ -60,7 +62,7 @@ import com.esri.ges.core.validation.ValidationException;
 import com.esri.ges.manager.datastore.agsconnection.ArcGISServerConnection;
 import com.esri.ges.manager.datastore.agsconnection.ArcGISServerConnection.ConnectionType;
 import com.esri.ges.manager.datastore.agsconnection.ArcGISServerType;
-import com.esri.ges.datastore.agsconnection.DefaultAGOLConnection;
+//import com.esri.ges.datastore.agsconnection.DefaultAGOLConnection;
 import com.esri.ges.manager.datastore.agsconnection.Layer;
 import com.esri.ges.framework.i18n.BundleLogger;
 import com.esri.ges.framework.i18n.BundleLoggerFactory;
@@ -614,7 +616,7 @@ public class SpatialQProcessor extends GeoEventProcessorBase implements
 		if(connectionType == ConnectionType.AGOL)
 		{
 			
-			String agolUrl = DefaultAGOLConnection.ARCGIS_Dot_Com_URL;
+			//String agolUrl = DefaultAGOLConnection.ARCGIS_Dot_Com_URL;
 			//token = agolconn.getToken();
 		}
 				
@@ -702,7 +704,8 @@ public class SpatialQProcessor extends GeoEventProcessorBase implements
 			String geoType, ArrayList<Object> queries)
 			throws UnsupportedEncodingException {
 		String contentType = "application/json";
-		HttpClient httpclient = HttpClientBuilder.create().build();
+		//HttpClient httpclient = HttpClientBuilder.create().build();
+		GeoEventHttpClient http = httpClientService.createNewClient();
 		HashMap<String, Object> responseMap = new HashMap<String, Object>();
 		for (int i = 0; i < queries.size(); ++i) {
 			@SuppressWarnings("unchecked")
@@ -734,7 +737,8 @@ public class SpatialQProcessor extends GeoEventProcessorBase implements
 			try {
 				HttpPost httppost = new HttpPost(uri);
 				httppost.setHeader("Accept", contentType);
-				HttpResponse response = httpclient.execute(httppost);
+				CloseableHttpResponse response = http.execute(httppost, GeoEventHttpClient.DEFAULT_TIMEOUT);
+				//HttpResponse response = httpclient.execute(httppost);
 
 				HttpEntity entity = response.getEntity();
 				if (entity != null) {
